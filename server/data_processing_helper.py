@@ -18,14 +18,19 @@ def extractFrames(filename):
     print('frames per second =', fps)
 
     limit = 60
+    
+    res = []
 
     while success:
         if (count % limit == 0):
             temp = filename+"_frame"+str(math.ceil(count/limit))+".jpg"
             print(temp)
+            res.append(temp)
             cv2.imwrite(temp, image)
         success, image = vidcap.read()
         count += 1
+        
+    return res
 
 
 def speechToText(filename):

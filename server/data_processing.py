@@ -1,5 +1,5 @@
 import math
-from data_processing_helper import videoToAudio, splitAudio, speechToText
+from data_processing_helper import videoToAudio, splitAudio, speechToText, extractFrames
 import os
 from pydub import AudioSegment
 import glob
@@ -56,14 +56,7 @@ def getAudioSegmentFilenames(filename):
 
 
 def getFrameFilenames(filename):
-    files = glob.glob(filename+'*.jpg')
-    res = []
-    for file in files:
-        # print("found:" + file)
-        res.append(str(file))
-    
-    res.sort()
-    return res
+    return extractFrames(filename)
     
   
 DIR = "./data/"
