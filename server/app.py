@@ -1,16 +1,18 @@
+from data_processing import speechToText, videoToAudio
 from flask import Flask
 
 app = Flask(__name__)
+
+DIR = "./data/"
 
 
 @app.route("/")
 def hello_world():
     return "<p>Hello, World!</p>"
 
+
 @app.route("/test")
 def test():
-    return "<p>Hello, test!</p>"
-
-@app.route("/test2")
-def test2():
-    return "<p>Hello, test2!</p>"
+    videoToAudio(DIR+"videoTest.mp4")
+    text = speechToText(DIR+"videoTest.mp4_audio.wav")
+    return text
