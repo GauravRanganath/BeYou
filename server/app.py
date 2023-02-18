@@ -1,9 +1,11 @@
 from flask import Flask, jsonify, request
 from text_analysis import TextAnalysis
 from video_analysis import VideoAnalysis
+from data_processing import speechToText, videoToAudio
 
 app = Flask(__name__)
 
+DIR = "./data/"
 
 @app.route("/")
 def hello_world():
@@ -11,7 +13,9 @@ def hello_world():
 
 @app.route("/test")
 def test():
-    return "<p>Hello, test!</p>"
+    videoToAudio(DIR+"videoTest.mp4")
+    text = speechToText(DIR+"videoTest.mp4_audio.wav")
+    return text
 
 @app.route("/test2")
 def test2():
@@ -38,5 +42,3 @@ def image_analyzer():
     video_analyzer = VideoAnalysis()
     output_emotion = video_analyzer.analyze(input_image_path)
     return jsonify({"output_emotion":output_emotion})
-
-
