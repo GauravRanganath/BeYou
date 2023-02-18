@@ -2,6 +2,7 @@ import math
 from data_processing_helper import videoToAudio, splitAudio, speechToText
 import os
 from pydub import AudioSegment
+import glob
 
 
 def buildTextSegments(filename, total_secs, sec_per_split):
@@ -53,9 +54,25 @@ def getAudioSegmentFilenames(filename):
         res.append(filename+"_segment_"+str(math.ceil(i/segmentSize))+".wav")
     return res
 
+
+def getFrameFilenames(filename):
+    files = glob.glob(filename+'*.jpg')
+    res = []
+    for file in files:
+        # print("found:" + file)
+        res.append(str(file))
+    
+    res.sort()
+    return res
+    
+  
 DIR = "./data/"
-getTextSegments(DIR+"mediumVideoTest.mp4")
-print(getAudioSegmentFilenames(DIR+"mediumVideoTest.mp4"))
+
+# print(getFrameFilenames(DIR+"mediumVideoTest.mp4"))
+
+# DIR = "./data/"
+# getTextSegments(DIR+"mediumVideoTest.mp4")
+# print(getAudioSegmentFilenames(DIR+"mediumVideoTest.mp4"))
 
 # getTextSegments(DIR+"videoTest.mp4")
 # getTextSegments(DIR+"mediumVideoTest.mp4")

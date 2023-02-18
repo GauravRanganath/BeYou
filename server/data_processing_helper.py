@@ -77,7 +77,7 @@ def splitAudio(filename, segmentSize):
     return total_secs
 
 
-# DIR = "./data/"
+DIR = "./data/"
 # extractFrames(DIR+"bigVideoTest.mp4")
 # extractFrames(DIR+"mediumVideoTest.mp4")
 
