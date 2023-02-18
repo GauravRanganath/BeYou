@@ -66,7 +66,7 @@ def splitAudio(filename, segmentSize):
         split_audio.export(split_filename, format="wav")
 
     for i in range(0, total_secs, sec_per_split):
-        split_filename = filename + "_segment_" + str(i) + ".wav"
+        split_filename = filename + "_segment_" + str(math.ceil(i/sec_per_split)) + ".wav"
         helper(i, i+sec_per_split, split_filename)
 
         print(str(i) + ' Done')
@@ -77,8 +77,8 @@ def splitAudio(filename, segmentSize):
     return total_secs
 
 
-DIR = "./data/"
-extractFrames(DIR+"bigVideoTest.mp4")
+# DIR = "./data/"
+# extractFrames(DIR+"bigVideoTest.mp4")
 # extractFrames(DIR+"mediumVideoTest.mp4")
 
 # videoToAudio(DIR+"videoTest.mp4")

@@ -7,7 +7,7 @@ from pydub import AudioSegment
 def buildTextSegments(filename, total_secs, sec_per_split):
     res = []
     for i in range(0, total_secs, sec_per_split):
-        temp = speechToText(filename+"_segment_"+str(i)+".wav")
+        temp = speechToText(filename+"_segment_"+str(math.ceil(i/sec_per_split))+".wav")
         res.append(temp)
     return res
 
@@ -18,7 +18,7 @@ def cleanUp(filename, total_secs, sec_per_split):
 
     # print("remove segments")
     for i in range(0, total_secs, sec_per_split):
-        os.remove(filename+"_segment_"+str(i)+".wav")
+        os.remove(filename+"_segment_"+math.ceil(i/sec_per_split)+".wav")
 
 
 def getTextSegments(filename):
@@ -50,12 +50,12 @@ def getAudioSegmentFilenames(filename):
     
     res = []
     for i in range(0, total_secs, segmentSize):
-        res.append(filename+"_segment_"+str(i)+".wav")
+        res.append(filename+"_segment_"+str(math.ceil(i/segmentSize))+".wav")
     return res
 
-# DIR = "./data/"
-# getTextSegments(DIR+"mediumVideoTest.mp4")
-# print(getAudioSegmentFilenames(DIR+"mediumVideoTest.mp4"))
+DIR = "./data/"
+getTextSegments(DIR+"mediumVideoTest.mp4")
+print(getAudioSegmentFilenames(DIR+"mediumVideoTest.mp4"))
 
 # getTextSegments(DIR+"videoTest.mp4")
 # getTextSegments(DIR+"mediumVideoTest.mp4")
