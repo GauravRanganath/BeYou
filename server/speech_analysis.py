@@ -1,20 +1,14 @@
-import librosa
-import librosa.display
-import numpy as np
-import matplotlib.pyplot as plt
-import tensorflow as tf
-from matplotlib.pyplot import specgram
-import keras
-from keras.preprocessing import sequence
-from keras.models import Sequential
-from keras.layers import Dense, Embedding
-from keras.layers import LSTM
-from keras.preprocessing.text import Tokenizer
-from keras.utils import to_categorical
-from keras.layers import Input, Flatten, Dropout, Activation
-from keras.layers import Conv1D, MaxPooling1D, AveragePooling1D
-from keras.models import Model
-from keras.callbacks import ModelCheckpoint
-from sklearn.metrics import confusion_matrix
-from keras import regularizers
-import os
+from speechbrain.pretrained.interfaces import foreign_class
+
+class SpeechAnalysis(object):
+    def __init__(self):
+        #4 emotions: neutral (neu), happy (hap), sad (sad) and angry (ang)
+        self.classifier = foreign_class(source="speechbrain/emotion-recognition-wav2vec2-IEMOCAP", pymodule_file="custom_interface.py", classname="CustomEncoderWav2vec2Classifier")
+
+    def analyze(self, wav_path):
+        out_prob, score, index, text_lab = self.classifier.classify_file(wav_path)
+        return text_lab
+
+if __name__=="__main__":
+    speech_analyzer = SpeechAnalysis()
+    print(speech_analyzer.analyze("output10.wav"))
