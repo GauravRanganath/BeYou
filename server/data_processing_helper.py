@@ -69,7 +69,7 @@ def splitAudio(filename, segmentSize):
         split_filename = filename + "_segment_" + str(math.ceil(i/sec_per_split)) + ".wav"
         helper(i, i+sec_per_split, split_filename)
 
-        print(str(i) + ' Done')
+        print(str(i) + split_filename + ' Done')
 
         if i == total_secs - sec_per_split:
             print('All splited successfully')
