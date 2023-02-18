@@ -2,8 +2,30 @@ import math
 import speech_recognition as sr
 import moviepy.editor as mp
 from pydub import AudioSegment
+import cv2
 
 r = sr.Recognizer()
+
+
+def extractFrames(filename):
+    print()
+    print("extractFrames - processing: " + filename)
+    vidcap = cv2.VideoCapture(filename)
+    success, image = vidcap.read()
+    count = 0
+
+    fps = vidcap.get(cv2.CAP_PROP_FPS)
+    print('frames per second =', fps)
+
+    limit = 60
+
+    while success:
+        if (count % limit == 0):
+            temp = filename+"_frame"+str(math.ceil(count/limit))+".jpg"
+            print(temp)
+            cv2.imwrite(temp, image)
+        success, image = vidcap.read()
+        count += 1
 
 
 def speechToText(filename):
@@ -55,7 +77,9 @@ def splitAudio(filename, segmentSize):
     return total_secs
 
 
-# DIR = "./data/"
+DIR = "./data/"
+extractFrames(DIR+"bigVideoTest.mp4")
+# extractFrames(DIR+"mediumVideoTest.mp4")
 
 # videoToAudio(DIR+"videoTest.mp4")
 # speechToText(DIR+"bigVideoTest.mp4_audio.wav")
