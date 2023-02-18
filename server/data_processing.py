@@ -1,24 +1,62 @@
-import speech_recognition as sr
-import moviepy.editor as mp
+import math
+from data_processing_helper import videoToAudio, splitAudio, speechToText
+import os
+from pydub import AudioSegment
 
 
-def speechToText(filename):
-    r = sr.Recognizer()
-    with sr.AudioFile(filename) as source:
-        print("speechToText - processing")
-        audio_data = r.record(source)
-        text = r.recognize_google(audio_data)
-        print("Result:" + text)
-
-        return text
+def buildTextSegments(filename, total_secs, sec_per_split):
+    res = []
+    for i in range(0, total_secs, sec_per_split):
+        temp = speechToText(filename+"_segment_"+str(i)+".wav")
+        res.append(temp)
+    return res
 
 
-def videoToAudio(filename):
-    clip = mp.VideoFileClip(filename)
-    print("videoToAudio - processing")
-    clip.audio.write_audiofile(filename+"_audio"+".wav")
-    return
+def cleanUp(filename, total_secs, sec_per_split):
+    # print("remove audio")
+    os.remove(filename)
+
+    # print("remove segments")
+    for i in range(0, total_secs, sec_per_split):
+        os.remove(filename+"_segment_"+str(i)+".wav")
 
 
-# videoToAudio(DIR+"videoTest.mp4")
-# speechToText(DIR+"videoTest.mp4_audio.wav")
+def getTextSegments(filename):
+    # convert video to audio
+    videoToAudio(filename)
+
+    # split audio
+    segmentSize = 4
+    total_secs = splitAudio(filename+"_audio"+".wav", segmentSize)
+
+    # build text segments
+    textSegments = buildTextSegments(
+        filename+"_audio"+".wav", total_secs, segmentSize)
+
+    print()
+    for i in range(len(textSegments)):
+        print(str(i) + " - " + textSegments[i])
+
+    # cleanUp(filename+"_audio"+".wav", total_secs, segmentSize)
+    
+    return textSegments
+
+
+def getAudioSegmentFilenames(filename):
+    filename = filename+"_audio"+".wav"
+    fullAudio = AudioSegment.from_wav(filename)
+    total_secs = math.ceil(fullAudio.duration_seconds)
+    segmentSize = 4
+    
+    res = []
+    for i in range(0, total_secs, segmentSize):
+        res.append(filename+"_segment_"+str(i)+".wav")
+    return res
+
+# DIR = "./data/"
+# getTextSegments(DIR+"mediumVideoTest.mp4")
+# print(getAudioSegmentFilenames(DIR+"mediumVideoTest.mp4"))
+
+# getTextSegments(DIR+"videoTest.mp4")
+# getTextSegments(DIR+"mediumVideoTest.mp4")
+# getTextSegments(DIR+"bigVideoTest.mp4")
