@@ -184,6 +184,20 @@ def extractInfoFromName(filename):
     print("info:", arr)
     return arr
 
+@app.route('/getData', methods=['GET'])
+def getData():
+    name = request.form['name']
+    dateFrom = request.form['dateFrom']
+    dateTo = request.form['dateTo']
+
+    res = []
+    
+    for x in video_collection.find({}, { "name": name }):
+        print(x)
+        res.append(x)
+        
+    return res
+
 @app.route('/upload', methods=['POST'])
 def fileUpload():
     # save file
@@ -238,7 +252,8 @@ def fileUpload():
         highest_emotions = sorted(core_emotions, key=lambda x: core_emotions[x], reverse=True)[0]
         video_emotions.append(highest_emotions)
 
-    video_emotion_count = create_emotion_count_dict(video_emotions, emotions=["anger","disgust","fear","joy","sadness","neutral","surprise"])
+    # print("core_emotions", core_emotions)
+    video_emotion_count = create_emotion_count_dict(video_emotions, emotions=core_emotions.keys())
 
     curr_output = {
         "name": info[0],
@@ -249,6 +264,9 @@ def fileUpload():
         "video_emotions": video_emotion_count,
         "audio_seconds": audio_secs,
         "video_framerate": math.ceil(vid_fps),
+        "text_emotions_segments": text_emotions,
+        "audio_emotions_segments": audio_emotions,
+        "video_emotions_segments": video_emotions
     }
     final_output = curr_output.copy()
     analysis_output = Video(**final_output)
