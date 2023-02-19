@@ -115,21 +115,23 @@ def transcription():
 def draw_boxes():
     args = request.args
     filename = args.get("filename")
-    res = []
-    
-    # filename = "happy2.mp4"#request.form.filename
-    DIR = "./data/"
-    video = cv2.VideoCapture(DIR+filename)
-    command = f"ffmpeg -y -i {DIR + filename} -ab 160k -ac 2 -ar 44100 -vn {'../client/public/videos/' + filename + '.wav'}"
-    subprocess.call(command, shell=True)
-    fps = math.ceil(video.get(cv2.CAP_PROP_FPS))
-    text_segments = getTextSegments(DIR + filename)
-    width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    frame_number = 0
     text_emotions = []
     text_probability = []
     if filename not in os.listdir('../client/public/videos'):
+        res = []
+
+        # filename = "happy2.mp4"#request.form.filename
+        DIR = "./data/"
+        video = cv2.VideoCapture(DIR+filename)
+        command = f"ffmpeg -y -i {DIR + filename} -ab 160k -ac 2 -ar 44100 -vn {'../client/public/videos/' + filename + '.wav'}"
+        subprocess.call(command, shell=True)
+        fps = math.ceil(video.get(cv2.CAP_PROP_FPS))
+        text_segments = getTextSegments(DIR + filename)
+        width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        frame_number = 0
+
+
         writer = cv2.VideoWriter('../client/public/videos/'+filename, cv2.VideoWriter_fourcc(*'DIVX'), 20, (width, height))
         haar_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
