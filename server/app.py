@@ -127,72 +127,76 @@ def draw_boxes():
     width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
     frame_number = 0
-    writer = cv2.VideoWriter('../client/public/videos/'+filename, cv2.VideoWriter_fourcc(*'DIVX'), 20, (width, height))
-    haar_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
     text_emotions = []
     text_probability = []
-    for segment in text_segments:
-        text_analyzer = TextAnalysis()
-        # I need to get the top 3 emotions in the analysis, sorted by score
-        core_emotions = text_analyzer.return_analysis(segment)[0]
-        highest_emotions = sorted(core_emotions, key=lambda x: x['score'], reverse=True)[0]
-        text_emotions.append(highest_emotions['label'])
-        text_probability.append(highest_emotions['score'])
-    while True:
-        try:
-            ret, frame = video.read()
-            frame_number += 1
+    if filename not in os.listdir('../client/public/videos'):
+        writer = cv2.VideoWriter('../client/public/videos/'+filename, cv2.VideoWriter_fourcc(*'DIVX'), 20, (width, height))
+        haar_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
-            # Quit when the input video file ends
-            if not ret:
-                break
-            font = cv2.FONT_HERSHEY_SIMPLEX
+        for segment in text_segments:
+            text_analyzer = TextAnalysis()
+            # I need to get the top 3 emotions in the analysis, sorted by score
+            core_emotions = text_analyzer.return_analysis(segment)[0]
+            highest_emotions = sorted(core_emotions, key=lambda x: x['score'], reverse=True)[0]
+            text_emotions.append(highest_emotions['label'])
+            text_probability.append(highest_emotions['score'])
+        while True:
+            try:
+                ret, frame = video.read()
+                frame_number += 1
 
-            # Use putText() method for
-            # inserting text on video
-            print(frame_number%fps, frame_number, fps, int((frame_number-1)/(4*fps)), len(text_emotions))
-            if frame_number% (4*fps) == 1:
-                emotion_name = text_emotions[int((frame_number-1)/(4*fps))]
-            prob = text_probability[int((frame_number-1)/(4*fps))]
-            operator = min if prob+0.05 > 1 else max
-            emotion_probability = str(f"{round(100*random.uniform(prob-0.03, operator(prob+0.03, 1)),2)}%")
-            cv2.putText(frame,
-                        emotion_name,
-                        (150, 175),
-                        font, 7,
-                        (0, 255, 0),
-                        2,
-                        cv2.LINE_4)
-            cv2.putText(frame,
-                        emotion_probability,
-                        (150, 325),
-                        font, 3,
-                        (0, 255, 0),
-                        2,
-                        cv2.LINE_4)
-            if frame_number% 10 == 1:
-                gray_img = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                # Quit when the input video file ends
+                if not ret:
+                    break
+                font = cv2.FONT_HERSHEY_SIMPLEX
 
-                # Loading the required haar-cascade xml classifier file
+                # Use putText() method for
+                # inserting text on video
+                print(frame_number%fps, frame_number, fps, int((frame_number-1)/(4*fps)), len(text_emotions))
+                if frame_number% (4*fps) == 1:
+                    emotion_name = text_emotions[int((frame_number-1)/(4*fps))]
+                prob = text_probability[int((frame_number-1)/(4*fps))]
+                operator = min if prob+0.05 > 1 else max
+                emotion_probability = str(f"{round(100*random.uniform(prob-0.03, operator(prob+0.03, 1)),2)}%")
+                cv2.putText(frame,
+                            emotion_name,
+                            (150, 175),
+                            font, 7,
+                            (0, 255, 0),
+                            2,
+                            cv2.LINE_4)
+                cv2.putText(frame,
+                            emotion_probability,
+                            (150, 325),
+                            font, 3,
+                            (0, 255, 0),
+                            2,
+                            cv2.LINE_4)
+                if frame_number% 10 == 1:
+                    gray_img = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+                    # Loading the required haar-cascade xml classifier file
 
 
-                # Applying the face detection method on the grayscale image
-                faces_rect = haar_cascade.detectMultiScale(gray_img, 1.1, 9)
+                    # Applying the face detection method on the grayscale image
+                    faces_rect = haar_cascade.detectMultiScale(gray_img, 1.1, 9)
 
-            # Iterating through rectangles of detected faces
-            for (x, y, w, h) in faces_rect:
-                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 5)
-            # Write the resulting image to the output video file
-            #print("Writing frame {} / {}".format(frame_number, width))
-            writer.write(frame)
-        except:
-            print("Error writing frame {} / {}".format(frame_number, width))
-            assert False
+                # Iterating through rectangles of detected faces
+                for (x, y, w, h) in faces_rect:
+                    cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 5)
+                # Write the resulting image to the output video file
+                #print("Writing frame {} / {}".format(frame_number, width))
+                writer.write(frame)
+            except:
+                print("Error writing frame {} / {}".format(frame_number, width))
+                assert False
 
-    video.release()
-    writer.release()
-    cv2.destroyAllWindows()
-    return {"output_emotion":text_emotions}
+        video.release()
+        writer.release()
+        cv2.destroyAllWindows()
+        return {"output_emotion":text_emotions}
+    else:
+        return {"output_emotion":text_emotions}
 
 
 def convert_webm_to_mp4(input_file, output_file):
