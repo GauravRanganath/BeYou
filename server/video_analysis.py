@@ -5,7 +5,7 @@ class VideoAnalysis(object):
         self.actions = ("emotion")
 
     def analyze(self, img_path):
-        objs = DeepFace.analyze(img_path=img_path, actions=self.actions)
+        objs = DeepFace.analyze(img_path=img_path, actions=self.actions, enforce_detection=False)
         for emotion in objs[0]['emotion']:
             objs[0]['emotion'][emotion] = objs[0]['emotion'][emotion]/100
         return objs
