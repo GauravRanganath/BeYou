@@ -186,17 +186,28 @@ def extractInfoFromName(filename):
 
 @app.route('/getData', methods=['GET'])
 def getData():
-    name = request.form['name']
-    dateFrom = request.form['dateFrom']
-    dateTo = request.form['dateTo']
-
+    args = request.args
+    name = args.get("name")
     res = []
     
-    for x in video_collection.find({}, { "name": name }):
-        print(x)
-        res.append(x)
+    for x in video_collection.find({ "name": name }, {}):
+        print("data found:", x)
+        temp = {
+            "name": x["name"],
+            "epoch_date": x["epoch_date"],
+            "video_name": x["video_name"],
+            "text_emotions": x["text_emotions"],
+            "audio_emotions": x["audio_emotions"],
+            "video_emotions": x["video_emotions"],
+            "audio_seconds": x["audio_seconds"],
+            "video_framerate": x["video_framerate"],
+            "text_emotions_segments": x["text_emotions_segments"],
+            "audio_emotions_segments": x["audio_emotions_segments"],
+            "video_emotions_segments": x["video_emotions_segments"]
+        }
+        res.append(temp)
         
-    return res
+    return jsonify(res)
 
 @app.route('/upload', methods=['POST'])
 def fileUpload():
