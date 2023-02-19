@@ -4,8 +4,10 @@ from flask import Flask, request, session
 from flask_cors import CORS, cross_origin
 from text_analysis import TextAnalysis
 from video_analysis import VideoAnalysis
-from data_processing import getTextSegments, getAudioSegmentFilenames, getFrameFilenames
-
+from speech_analysis import SpeechAnalysis
+import cv2
+import face_recognition
+from data_processing import speechToText, videoToAudio, getTextSegments, getAudioSegmentFilenames, getFrameFilenames
 
 app = Flask(__name__)
 
@@ -44,6 +46,22 @@ def image_analyzer():
     video_analyzer = VideoAnalysis()
     output_emotion = video_analyzer.analyze(input_image_path)
     return jsonify({"output_emotion":output_emotion})
+
+@app.post("/audio")
+def audio_analyzer():
+    """
+    Sample output from audio analyzer
+    ['neu']
+    """
+    input_audio_path = request.form.get("audio_path")
+    audio_analyzer = SpeechAnalysis()
+    output_emotion = audio_analyzer.analyze(input_audio_path)
+    return jsonify({"output_emotion":output_emotion})
+
+@app.post("/boxes")
+def draw_boxes():
+    input_video_path = request.form.get("video_path")
+    cap = cv2.VideoCapture("enterfilepath.mp4")
 
 @app.route('/upload', methods=['POST'])
 def fileUpload():
