@@ -3,9 +3,9 @@ import Container from "react-bootstrap/esm/Container";
 import Row from "react-bootstrap/esm/Row";
 import Col from "react-bootstrap/esm/Col";
 import { useRef, useState, useEffect } from "react";
-import ReactPlayer from 'react-player';
+import ReactPlayer from "react-player";
 import axios, * as others from "axios";
-import Select from 'react-select'
+import Select from "react-select";
 
 // ['Anger', 'Disgust', 'Fear', 'Joy', 'Neutral', 'Sadness', 'Surprise']
 
@@ -36,7 +36,7 @@ const Dashboard = () => {
       .then(function (response) {
         console.log("ALLDATA:", response.data);
         let data = response.data;
-        for (let i=0; i<data.length; i++) {
+        for (let i = 0; i < data.length; i++) {
           let epoch = parseInt(data[i]["epoch_date"]);
           let temp = new Date(epoch);
           data[i]["id"] = i;
@@ -60,18 +60,17 @@ const Dashboard = () => {
       });
   }, []);
 
-  useEffect(() => {
-
-  }, []);
+  useEffect(() => {}, []);
   return (
     <>
       <Container>
-        
         <Row>
           <Col>
-          <br></br><br></br>
+            <br></br>
+            <br></br>
             <h1>Overall Analysis</h1>
-            <br></br><br></br>
+            <br></br>
+            <br></br>
           </Col>
         </Row>
         <Row>
@@ -92,25 +91,35 @@ const Dashboard = () => {
           </Col>
         </Row>
         <Row>
-            <Select options={allData} onChange={(value) => {
-                axios
-                .get("http://localhost:5000/boxes?filename="+value["video_name"])
-                .then(function (response) {
-                  console.log("UPLOAD: complete", response.data);
-                  setFileName("videos/"+value["video_name"]);
-                })
-              }}/>
-            <div className='player-wrapper'>
+          <Col md={2}></Col>
+          <Col md={8}>
+            <div className="player-wrapper">
               <ReactPlayer
-              // className='react-player fixed-bottom'
-              url= {fileName}
-              // width='20%'
-              // height='20%'
-              controls = {true}
-            />
-        </div>
-        </Row>
+                // className='react-player fixed-bottom'
+                url={fileName}
+                // width='20%'
+                // height='20%'
+                controls={true}
+              />
+            </div>
 
+            <Select
+              options={allData}
+              onChange={(value) => {
+                axios
+                  .get(
+                    "http://localhost:5000/boxes?filename=" +
+                      value["video_name"]
+                  )
+                  .then(function (response) {
+                    console.log("UPLOAD: complete", response.data);
+                    setFileName("videos/" + value["video_name"]);
+                  });
+              }}
+            />
+          </Col>
+          <Col md={2}></Col>
+        </Row>
       </Container>
     </>
   );
