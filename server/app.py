@@ -191,7 +191,7 @@ def fileUpload():
     audio_emotions = []
     for segment in audio_segments:
         speech_analyzer = SpeechAnalysis()
-        audio_emotions.append(speech_analyzer.analyze(segment))
+        audio_emotions.append(speech_analyzer.analyze(segment)[0])
 
     video_emotions = []
     for frame in video_frames:
