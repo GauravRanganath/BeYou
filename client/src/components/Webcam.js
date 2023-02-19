@@ -43,7 +43,10 @@ const WebcamStreamCapture = () => {
       });
 
       const data = new FormData();
-      data.append("file", blob, "test.webm");
+      let name = "rama";
+      let date = "18-february-2023";
+      let fileName = name + "_" + date + ".webm";
+      data.append("file", blob, fileName);
 
       fetch("http://localhost:5000/upload", {
         method: "POST",

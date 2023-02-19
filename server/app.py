@@ -20,7 +20,7 @@ def hello_world():
 @app.route("/test")
 def test():
     DIR = "./data/"
-    fileName = "sad2.mp4"
+    fileName = "rama_18-february-2023.webm"
     text_segments = getTextSegments(DIR+fileName)
     audio_segments = getAudioSegmentFilenames(DIR+fileName)
     video_frames = getFrameFilenames(DIR+fileName)
@@ -132,7 +132,7 @@ def draw_boxes():
 
 @app.route('/upload', methods=['POST'])
 def fileUpload():
-    target=os.path.join("./data",'test_docs')
+    target=os.path.join("./data")
     if not os.path.isdir(target):
         os.mkdir(target)
     file = request.files['file'] 
