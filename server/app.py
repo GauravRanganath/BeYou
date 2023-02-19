@@ -113,17 +113,21 @@ def transcription():
 
 @app.route("/boxes")
 def draw_boxes():
-    filename = "happy2.mp4"#request.form.filename
+    args = request.args
+    filename = args.get("filename")
+    
+    # filename = "basicvideo.mp4"#request.form.filename
+    
     DIR = "./data/"
     video = cv2.VideoCapture(DIR+filename)
-    command = f"ffmpeg -y -i {DIR + filename} -ab 160k -ac 2 -ar 44100 -vn {'../client/src/pages/' + 'basicvideo.wav'}"
+    command = f"ffmpeg -y -i {DIR + filename} -ab 160k -ac 2 -ar 44100 -vn {'../client/public/videos/'+filename+'.wav'}"
     subprocess.call(command, shell=True)
     fps = math.ceil(video.get(cv2.CAP_PROP_FPS))
     text_segments = getTextSegments(DIR + filename)
     width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
     frame_number = 0
-    writer = cv2.VideoWriter('../client/src/pages/'+'basicvideo.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20, (width, height))
+    writer = cv2.VideoWriter('../client/public/videos/'+"demo_video.mp4", cv2.VideoWriter_fourcc(*'DIVX'), 20, (width, height))
     haar_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
     text_emotions = []
     text_probability = []
@@ -188,7 +192,8 @@ def draw_boxes():
     video.release()
     writer.release()
     cv2.destroyAllWindows()
-    return {"output_emotion":text_emotions}
+    
+    return {"status":"complete"}
 
 
 def convert_webm_to_mp4(input_file, output_file):
