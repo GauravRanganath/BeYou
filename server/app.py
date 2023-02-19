@@ -87,10 +87,48 @@ def audio_analyzer():
     output_emotion = audio_analyzer.analyze(input_audio_path)
     return jsonify({"output_emotion":output_emotion})
 
-@app.post("/boxes")
+@app.route("/boxes")
 def draw_boxes():
-    input_video_path = request.form.get("video_path")
-    cap = cv2.VideoCapture("enterfilepath.mp4")
+    video = cv2.VideoCapture('data/happy1.mp4')
+
+    width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    frame_number = 0
+    writer = cv2.VideoWriter('basicvideo.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20, (width, height))
+    haar_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+    while True:
+        try:
+            ret, frame = video.read()
+
+            frame_number += 1
+
+            # Quit when the input video file ends
+            if not ret:
+                break
+            if frame_number% 10 == 1:
+                gray_img = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+                # Loading the required haar-cascade xml classifier file
+
+
+                # Applying the face detection method on the grayscale image
+                faces_rect = haar_cascade.detectMultiScale(gray_img, 1.1, 9)
+
+            # Iterating through rectangles of detected faces
+            for (x, y, w, h) in faces_rect:
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            # Write the resulting image to the output video file
+            print("Writing frame {} / {}".format(frame_number, width))
+            writer.write(frame)
+        except:
+            print("Error writing frame {} / {}".format(frame_number, width))
+            assert False
+
+    video.release()
+    writer.release()
+    cv2.destroyAllWindows()
+
+
 
 @app.route('/upload', methods=['POST'])
 def fileUpload():
@@ -100,6 +138,7 @@ def fileUpload():
     file = request.files['file'] 
     filename = file.filename
     destination="/".join([target, filename])
+    print(destination)
     file.save(destination)
     
     # # start processing data
@@ -134,11 +173,38 @@ def fileUpload():
     #     "audio_emotions": audio_emotions,
     #     "video_emotions": video_emotions
     # }
-    
-    # print(final_output)
-    # return jsonify(final_output)
 
-    response="Whatever you wish too return"
-    return response
+    DIR = "./data/"
+    fileName = "sad2.mp4"
+    text_segments = getTextSegments(DIR + fileName)
+    audio_segments = getAudioSegmentFilenames(DIR + fileName)
+    video_frames = getFrameFilenames(DIR + fileName)
+
+    text_emotions = []
+    for segment in text_segments:
+        text_analyzer = TextAnalysis()
+        # I need to get the top 3 emotions in the analysis, sorted by score
+        core_emotions = text_analyzer.return_analysis(segment)[0]
+        highest_emotions = sorted(core_emotions, key=lambda x: x['score'], reverse=True)[0]
+        text_emotions.append(highest_emotions)
+
+    audio_emotions = []
+    for segment in audio_segments:
+        speech_analyzer = SpeechAnalysis()
+        audio_emotions.append(speech_analyzer.analyze(segment))
+
+    video_emotions = []
+    for frame in video_frames:
+        video_analyzer = VideoAnalysis()
+        core_emotions = video_analyzer.analyze(frame)[0]["emotion"]
+        highest_emotions = sorted(core_emotions, key=lambda x: core_emotions[x], reverse=True)[0]
+        video_emotions.append(highest_emotions)
+
+    final_output = {
+        "text_emotions": text_emotions,
+        "audio_emotions": audio_emotions,
+        "video_emotions": video_emotions
+    }
+    return jsonify(final_output)
 
 CORS(app, expose_headers='Authorization')
