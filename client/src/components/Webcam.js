@@ -44,7 +44,7 @@ const WebcamStreamCapture = () => {
 
       const data = new FormData();
       let name = "rama";
-      let date = "18-february-2023";
+      let date = Date.now().toString();
       let fileName = name + "_" + date + ".webm";
       data.append("file", blob, fileName);
 
