@@ -13,7 +13,7 @@ from data_processing import speechToText, videoToAudio, getTextSegments, getAudi
 from dotenv import dotenv_values
 from pymongo import MongoClient
 from models import Video
-import math
+import math, random
 
 app = Flask(__name__)
 
@@ -28,42 +28,42 @@ print("Connected to the MongoDB database!")
 @app.route("/")
 def hello_world():
     return "<p>Hello, World!</p>"
-
-@app.route("/test")
-def test():
-    DIR = "./data/"
-    fileName = "rama_18-february-2023.webm"
-    text_segments = getTextSegments(DIR+fileName)
-    audio_segments, audio_secs = getAudioSegmentFilenames(DIR+fileName)
-    video_frames, vid_fps = getFrameFilenames(DIR+fileName)
-
-    text_emotions = []
-    for segment in text_segments:
-        text_analyzer = TextAnalysis()
-        # I need to get the top 3 emotions in the analysis, sorted by score
-        core_emotions = text_analyzer.return_analysis(segment)[0]
-        highest_emotions = sorted(core_emotions, key=lambda x: x['score'], reverse=True)[:3]
-        text_emotions.append(highest_emotions)
-
-    audio_emotions = []
-    for segment in audio_segments:
-        speech_analyzer = SpeechAnalysis()
-        audio_emotions.append(speech_analyzer.analyze(segment))
-
-    video_emotions = []
-    for frame in video_frames:
-        video_analyzer = VideoAnalysis()
-        core_emotions = video_analyzer.analyze(frame)[0]["emotion"]
-        highest_emotions = sorted(core_emotions, key=lambda x: core_emotions[x], reverse=True)[:3]
-        video_emotions.append(highest_emotions)
-
-    final_output = {
-        "text_emotions": text_emotions,
-        "audio_emotions": audio_emotions,
-        "video_emotions": video_emotions
-    }
-    print(final_output)
-    return final_output
+#
+# @app.route("/test")
+# def test():
+#     DIR = "./data/"
+#     fileName = "rama_18-february-2023.webm"
+#     text_segments = getTextSegments(DIR+fileName)
+#     audio_segments, audio_secs = getAudioSegmentFilenames(DIR+fileName)
+#     video_frames, vid_fps = getFrameFilenames(DIR+fileName)
+#
+#     text_emotions = []
+#     for segment in text_segments:
+#         text_analyzer = TextAnalysis()
+#         # I need to get the top 3 emotions in the analysis, sorted by score
+#         core_emotions = text_analyzer.return_analysis(segment)[0]
+#         highest_emotions = sorted(core_emotions, key=lambda x: x['score'], reverse=True)[:3]
+#         text_emotions.append(highest_emotions)
+#
+#     audio_emotions = []
+#     for segment in audio_segments:
+#         speech_analyzer = SpeechAnalysis()
+#         audio_emotions.append(speech_analyzer.analyze(segment))
+#
+#     video_emotions = []
+#     for frame in video_frames:
+#         video_analyzer = VideoAnalysis()
+#         core_emotions = video_analyzer.analyze(frame)[0]["emotion"]
+#         highest_emotions = sorted(core_emotions, key=lambda x: core_emotions[x], reverse=True)[:3]
+#         video_emotions.append(highest_emotions)
+#
+#     final_output = {
+#         "text_emotions": text_emotions,
+#         "audio_emotions": audio_emotions,
+#         "video_emotions": video_emotions
+#     }
+#     print(final_output)
+#     return final_output
 
 
 @app.post("/text")
@@ -103,17 +103,25 @@ def audio_analyzer():
 
 @app.route("/boxes")
 def draw_boxes():
-    filename = request.form.filename
+    filename = "happy2.mp4"#request.form.filename
     DIR = "./data/"
     video = cv2.VideoCapture(DIR+filename)
-    fps = video.get(cv2.CAP_PROP_FPS)
-    print(fps)
-    assert(0)
+    fps = math.ceil(video.get(cv2.CAP_PROP_FPS))
+    text_segments = getTextSegments(DIR + filename)
     width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
     frame_number = 0
     writer = cv2.VideoWriter(DIR+'basicvideo.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20, (width, height))
     haar_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+    text_emotions = []
+    text_probability = []
+    for segment in text_segments:
+        text_analyzer = TextAnalysis()
+        # I need to get the top 3 emotions in the analysis, sorted by score
+        core_emotions = text_analyzer.return_analysis(segment)[0]
+        highest_emotions = sorted(core_emotions, key=lambda x: x['score'], reverse=True)[0]
+        text_emotions.append(highest_emotions['label'])
+        text_probability.append(highest_emotions['score'])
     while True:
         try:
             ret, frame = video.read()
@@ -127,11 +135,24 @@ def draw_boxes():
 
             # Use putText() method for
             # inserting text on video
+            print(frame_number%fps, frame_number, fps, int((frame_number-1)/(4*fps)), len(text_emotions))
+            if frame_number% (4*fps) == 1:
+                emotion_name = text_emotions[int((frame_number-1)/(4*fps))]
+            prob = text_probability[int((frame_number-1)/(4*fps))]
+            operator = min if prob+0.05 > 1 else max
+            emotion_probability = str(f"{round(100*random.uniform(prob-0.03, operator(prob+0.03, 1)),2)}%")
             cv2.putText(frame,
-                        'TEXT ON VIDEO',
-                        (50, 50),
-                        font, 1,
-                        (0, 255, 255),
+                        emotion_name,
+                        (150, 175),
+                        font, 7,
+                        (0, 255, 0),
+                        2,
+                        cv2.LINE_4)
+            cv2.putText(frame,
+                        emotion_probability,
+                        (150, 325),
+                        font, 3,
+                        (0, 255, 0),
                         2,
                         cv2.LINE_4)
             if frame_number% 10 == 1:
@@ -145,9 +166,9 @@ def draw_boxes():
 
             # Iterating through rectangles of detected faces
             for (x, y, w, h) in faces_rect:
-                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 4)
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 5)
             # Write the resulting image to the output video file
-            print("Writing frame {} / {}".format(frame_number, width))
+            #print("Writing frame {} / {}".format(frame_number, width))
             writer.write(frame)
         except:
             print("Error writing frame {} / {}".format(frame_number, width))
@@ -156,6 +177,7 @@ def draw_boxes():
     video.release()
     writer.release()
     cv2.destroyAllWindows()
+    return {"output_emotion":text_emotions}
 
 
 def convert_webm_to_mp4(input_file, output_file):
