@@ -224,7 +224,7 @@ def getData():
     res = []
     
     for x in video_collection.find({ "name": name }, {}):
-        print("data found:", x)
+        # print("data found:", x)
         temp = {
             "name": x["name"],
             "epoch_date": x["epoch_date"],
@@ -250,7 +250,7 @@ def getAverageEmotions():
     data = []
     
     for x in video_collection.find({ "name": name }, {}):
-        print("data found:", x)
+        # print("data found:", x)
         temp = {
             "name": x["name"],
             "text_emotions": x["text_emotions"],
@@ -262,6 +262,9 @@ def getAverageEmotions():
     # allEmotions = ['Anger', 'Disgust', 'Fear', 'Joy', 'Neutral', 'Sadness', 'Surprise']
     
     res = [0] * 7
+    res_text = [0] * 7
+    res_audio = [0] * 7
+    res_video = [0] * 7
     
     dataLen = len(data)
     
@@ -269,56 +272,111 @@ def getAverageEmotions():
     index = 0
     for x in data:
         res[index] += x["audio_emotions"]["angry"]
+        res_audio[index] += x["audio_emotions"]["angry"]
+        
         res[index] += x["text_emotions"]["anger"]
+        res_text[index] += x["text_emotions"]["anger"]
+        
         res[index] += x["video_emotions"]["angry"]
+        res_video[index] += x["video_emotions"]["angry"]
     res[index] = res[index] / (3 * dataLen)
+    res_text[index] = res_text[index] / dataLen
+    res_audio[index] = res_audio[index] / dataLen
+    res_video[index] = res_video[index] / dataLen
     
     # Disgust
     index = 1
     for x in data:
         res[index] += x["text_emotions"]["disgust"]
+        res_text[index] += x["text_emotions"]["disgust"]
+        
         res[index] += x["video_emotions"]["disgust"]
+        res_video[index] += x["video_emotions"]["disgust"]
     res[index] = res[index] / (2 * dataLen)
+    res_text[index] = res_text[index] / dataLen
+    res_audio[index] = res_audio[index] / dataLen
+    res_video[index] = res_video[index] / dataLen
     
     # FEAR
     index = 2
     for x in data:
         res[index] += x["text_emotions"]["fear"]
+        res_text[index] += x["text_emotions"]["fear"]
+        
         res[index] += x["video_emotions"]["fear"]
+        res_video[index] += x["video_emotions"]["fear"]
     res[index] = res[index] / (2 * dataLen)
+    res_text[index] = res_text[index] / dataLen
+    res_audio[index] = res_audio[index] / dataLen
+    res_video[index] = res_video[index] / dataLen
 
     # JOY
     index = 3
     for x in data:
         res[index] += x["audio_emotions"]["happy"]
+        res_audio[index] += x["audio_emotions"]["happy"]
+        
         res[index] += x["text_emotions"]["joy"]
+        res_text[index] += x["text_emotions"]["joy"]
+        
         res[index] += x["video_emotions"]["happy"]
+        res_video[index] += x["video_emotions"]["happy"]
     res[index] = res[index] / (3 * dataLen)
+    res_text[index] = res_text[index] / dataLen
+    res_audio[index] = res_audio[index] / dataLen
+    res_video[index] = res_video[index] / dataLen
     
     # NEUTRAL
     index = 4
     for x in data:
         res[index] += x["audio_emotions"]["neutral"]
+        res_audio[index] += x["audio_emotions"]["neutral"]
+        
         res[index] += x["text_emotions"]["neutral"]
+        res_text[index] += x["text_emotions"]["neutral"]
+        
         res[index] += x["video_emotions"]["neutral"]
+        res_video[index] += x["video_emotions"]["neutral"]    
     res[index] = res[index] / (3 * dataLen)
+    res_text[index] = res_text[index] / dataLen
+    res_audio[index] = res_audio[index] / dataLen
+    res_video[index] = res_video[index] / dataLen
     
     # SADNESS
     index = 5
     for x in data:
         res[index] += x["audio_emotions"]["sad"]
+        res_audio[index] += x["audio_emotions"]["sad"]
+        
         res[index] += x["text_emotions"]["sadness"]
+        res_text[index] += x["text_emotions"]["sadness"]
+        
         res[index] += x["video_emotions"]["sad"]
+        res_video[index] += x["video_emotions"]["sad"]
     res[index] = res[index] / (3 * dataLen)
+    res_text[index] = res_text[index] / dataLen
+    res_audio[index] = res_audio[index] / dataLen
+    res_video[index] = res_video[index] / dataLen
     
     # SURPRISE
     index = 6
     for x in data:
         res[index] += x["text_emotions"]["surprise"]
-        res[index] += x["video_emotions"]["surprise"]
-    res[index] = res[index] / (2 * dataLen)
+        res_text[index] += x["text_emotions"]["surprise"]
         
-    return jsonify(res)
+        res[index] += x["video_emotions"]["surprise"]
+        res_video[index] += x["video_emotions"]["surprise"]
+    res[index] = res[index] / (2 * dataLen)
+    res_text[index] = res_text[index] / dataLen
+    res_audio[index] = res_audio[index] / dataLen
+    res_video[index] = res_video[index] / dataLen
+        
+    return jsonify({
+        "overall": res,
+        "audio": res_audio,
+        "video": res_video,
+        "text": res_text,
+    })
 
 @app.route('/getLatestWeek', methods=['GET'])
 def getLatestWeek():
@@ -327,7 +385,7 @@ def getLatestWeek():
     data = []
     
     for x in video_collection.find({ "name": name }, {}):
-        print("data found:", x)
+        # print("data found:", x)
         temp = {
             "name": x["name"],
             "epoch_date": int(x["epoch_date"]),
