@@ -26,7 +26,7 @@ const Dashboard = () => {
             <div className='player-wrapper'>
               <ReactPlayer
               // className='react-player fixed-bottom'
-              url='videos/bigVideoTest.mp4'
+              url='videos/demo_video.mp4'
               // width='20%'
               // height='20%'
               controls = {true}
