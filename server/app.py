@@ -1,6 +1,6 @@
 from data_processing import speechToText, videoToAudio
 import os
-from flask import Flask, request, session
+from flask import Flask, jsonify, request, session
 from flask_cors import CORS, cross_origin
 from text_analysis import TextAnalysis
 from video_analysis import VideoAnalysis
@@ -102,17 +102,42 @@ def fileUpload():
     destination="/".join([target, filename])
     file.save(destination)
     
-    # start processing data
-    audio_segments = []
-    text_segments = []
-    video_frames = []
-    
-    DIR = "./data/"
-    text_segments = getTextSegments(DIR+"mediumVideoTest.mp4")
-    audio_segments = getAudioSegmentFilenames(DIR+"mediumVideoTest.mp4")
-    video_frames = getFrameFilenames(DIR+"mediumVideoTest.mp4")
+    # # start processing data
+    # DIR = "./data/"
+    # fileName = "sad2.mp4"
+    # text_segments = getTextSegments(DIR+fileName)
+    # audio_segments = getAudioSegmentFilenames(DIR+fileName)
+    # video_frames = getFrameFilenames(DIR+fileName)
 
+    # text_emotions = []
+    # for segment in text_segments:
+    #     text_analyzer = TextAnalysis()
+    #     # I need to get the top 3 emotions in the analysis, sorted by score
+    #     core_emotions = text_analyzer.return_analysis(segment)[0]
+    #     highest_emotions = sorted(core_emotions, key=lambda x: x['score'], reverse=True)[:3]
+    #     text_emotions.append(highest_emotions)
+
+    # audio_emotions = []
+    # for segment in audio_segments:
+    #     speech_analyzer = SpeechAnalysis()
+    #     audio_emotions.append(speech_analyzer.analyze(segment))
+
+    # video_emotions = []
+    # for frame in video_frames:
+    #     video_analyzer = VideoAnalysis()
+    #     core_emotions = video_analyzer.analyze(frame)[0]["emotion"]
+    #     highest_emotions = sorted(core_emotions, key=lambda x: core_emotions[x], reverse=True)[:3]
+    #     video_emotions.append(highest_emotions)
+
+    # final_output = {
+    #     "text_emotions": text_emotions,
+    #     "audio_emotions": audio_emotions,
+    #     "video_emotions": video_emotions
+    # }
     
+    # print(final_output)
+    # return jsonify(final_output)
+
     response="Whatever you wish too return"
     return response
 
