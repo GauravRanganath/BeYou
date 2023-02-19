@@ -1,3 +1,4 @@
+import datetime
 from data_processing import speechToText, videoToAudio
 import os
 import subprocess
@@ -163,7 +164,7 @@ def convert_webm_to_mp4(input_file, output_file):
     subprocess.call(['ffmpeg', '-i', input_file, '-c:v', 'libx264', '-c:a', 'aac', '-strict', 'experimental', output_file])
 
 def create_emotion_count_dict(emotion_info):
-    emotions = ["neutral", "angry", "sad", "happy", "surprised", "fear", "disgust"]
+    emotions = ["neutral", "angry", "sad", "happy", "surprise", "fear", "disgust"]
     # create count dictionary with each emotion
     emotion_count = {emotion: 0 for emotion in emotions}
     # iterate through each emotion in the text emotions
@@ -173,6 +174,12 @@ def create_emotion_count_dict(emotion_info):
     # divide each emotion count by the total number of emotions
     emotion_count = {emotion: 100*emotion_count[emotion] / len(emotion_info) for emotion in emotions}
     return emotion_count
+
+def extractInfoFromName(filename):
+    arr = filename.split('.')
+    arr = arr[0].split('_')
+    print("info:", arr)
+    return arr
 
 @app.route('/upload', methods=['POST'])
 def fileUpload():
@@ -194,6 +201,8 @@ def fileUpload():
     convert_webm_to_mp4(DIR + fileName, DIR + fileName + ".mp4")
     
     fileName = fileName + ".mp4"
+    
+    info = extractInfoFromName(fileName)
     
     text_segments = getTextSegments(DIR + fileName)
     audio_segments, audio_secs = getAudioSegmentFilenames(DIR + fileName)
@@ -229,6 +238,8 @@ def fileUpload():
     video_emotion_count = create_emotion_count_dict(video_emotions)
 
     curr_output = {
+        "name": info[0],
+        "epoch_date": int(info[1]),
         "video_name": fileName,
         "text_emotions": text_emotion_count,
         "audio_emotions": audio_emotion_count,
