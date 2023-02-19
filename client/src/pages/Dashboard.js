@@ -40,28 +40,7 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    const video = videoRef.current;
 
-    const playVideo = () => {
-      video.play()
-        .catch(error => {
-          console.error('Error starting video playback:', error);
-        });
-    };
-
-    if (video) {
-      if (video.paused && video.readyState >= 3) {
-        playVideo();
-      } else {
-        video.addEventListener('canplaythrough', playVideo);
-      }
-    }
-
-    return () => {
-      if (video) {
-        video.removeEventListener("canplaythrough", playVideo);
-      }
-    };
   }, []);
   return (
     <>
@@ -89,8 +68,17 @@ const Dashboard = () => {
           </Col>
         </Row>
         <Row>
-            <video controls autostart autoPlay src={Video} type="video/mp4" />
+            <div className='player-wrapper'>
+              <ReactPlayer
+              // className='react-player fixed-bottom'
+              url='videos/demo_video.mp4'
+              // width='20%'
+              // height='20%'
+              controls = {true}
+            />
+        </div>
         </Row>
+
       </Container>
     </>
   );
