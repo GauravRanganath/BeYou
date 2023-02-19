@@ -11,3 +11,12 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.layoutContainer {
+  text-align: center;
+}
+
+.question {
+  margin: 25px 0;
+  font-size: 36px;
+}

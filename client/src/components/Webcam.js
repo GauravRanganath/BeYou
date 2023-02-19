@@ -1,5 +1,8 @@
 import { useRef, useState, useCallback } from "react";
 import Webcam from "react-webcam";
+import Button from "react-bootstrap/Button";
+import { useAudioRecorder } from "react-audio-voice-recorder";
+import "./../index.css";
 
 const WebcamStreamCapture = () => {
   const webcamRef = useRef(null);
@@ -39,17 +42,8 @@ const WebcamStreamCapture = () => {
         type: "video/webm",
       });
 
-      //   const url = URL.createObjectURL(blob);
-      //   const a = document.createElement("a");
-      //   document.body.appendChild(a);
-      //   a.style = "display: none";
-      //   a.href = url;
-      //   a.download = "react-webcam-stream-capture.webm";
-      //   a.click();
-      //   window.URL.revokeObjectURL(url);
-
       const data = new FormData();
-      data.append("file", blob, "file");
+      data.append("file", blob, "test.webm");
 
       fetch("http://localhost:5000/upload", {
         method: "POST",
@@ -57,21 +51,27 @@ const WebcamStreamCapture = () => {
       }).then((response) => {
         console.log(response);
       });
-
       setRecordedChunks([]);
     }
   }, [recordedChunks]);
 
   return (
     <>
-      <Webcam audio={false} ref={webcamRef} />
+      <Webcam audio={true} muted={true} ref={webcamRef} />
+      <br />
       {capturing ? (
-        <button onClick={handleStopCaptureClick}>Stop Capture</button>
+        <Button variant="dark" onClick={handleStopCaptureClick}>
+          Stop Capture
+        </Button>
       ) : (
-        <button onClick={handleStartCaptureClick}>Start Capture</button>
+        <Button variant="dark" onClick={handleStartCaptureClick}>
+          Start Capture
+        </Button>
       )}
       {recordedChunks.length > 0 && (
-        <button onClick={handleDownload}>Download</button>
+        <Button variant="dark" onClick={handleDownload}>
+          Download
+        </Button>
       )}
     </>
   );
