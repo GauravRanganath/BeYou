@@ -104,6 +104,13 @@ def audio_analyzer():
 
     return jsonify({"output_emotion":output_emotion})
 
+@app.post("/transcription")
+def transcription():
+    filename = request.form.get("filename")
+    text_segments = getTextSegments(DIR + filename)
+    return jsonify({"text_segments":text_segments})
+
+
 @app.route("/boxes")
 def draw_boxes():
     filename = "happy2.mp4"#request.form.filename
