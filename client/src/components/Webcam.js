@@ -63,16 +63,16 @@ const WebcamStreamCapture = () => {
       <Webcam audio={true} muted={true} ref={webcamRef} />
       <br />
       {capturing ? (
-        <Button variant="dark" onClick={handleStopCaptureClick}>
+        <Button className="journalButton" variant="dark" onClick={handleStopCaptureClick}>
           Stop Capture
         </Button>
       ) : (
-        <Button variant="dark" onClick={handleStartCaptureClick}>
+        <Button className="journalButton" variant="dark" onClick={handleStartCaptureClick}>
           Start Capture
         </Button>
       )}
       {recordedChunks.length > 0 && (
-        <Button variant="dark" onClick={handleDownload}>
+        <Button className="journalButton" variant="dark" onClick={handleDownload}>
           Download
         </Button>
       )}
