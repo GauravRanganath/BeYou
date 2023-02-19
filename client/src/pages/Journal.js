@@ -1,14 +1,11 @@
 import Webcam from "../components/Webcam.js";
-import "./../index.css";
+import './../index.css'
 
 const Journal = () => {
   return (
     <>
-      <div style={{ display: "inline" }}>
-        
-        <Webcam />
-        
-      </div>
+      <p className="question">How was your day?</p>
+      <Webcam />
     </>
   );
 };

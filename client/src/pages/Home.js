@@ -12,15 +12,15 @@ const Home = () => {
           <Col sm={6}>
             <div style={{ textAlign: "left", marginTop: "200px" }}>
               <h1 style={{ fontSize: "48px" }}>Discover the power of</h1>
-              <h1 style={{ fontSize: "120px" }}>
+              <h1 style={{ fontSize: "120px", textDecoration: "underline" }}>
                 Being You.
               </h1>
-              <br></br>
+              <p>I am a...</p>
               <div style={{ display: "inline" }}>
-                <Button href="journal" variant="dark" style={{ marginRight: "10px" }}>
-                  I'm a Patient
+                <Button variant="dark" style={{ marginRight: "10px" }}>
+                  Patient
                 </Button>
-                <Button variant="dark">I'm a Therapist</Button>
+                <Button variant="dark">Therapist</Button>
               </div>
             </div>
           </Col>
