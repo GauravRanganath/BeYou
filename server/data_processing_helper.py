@@ -2,7 +2,7 @@ import math
 import speech_recognition as sr
 import moviepy.editor as mp
 from pydub import AudioSegment
-# import cv2
+import cv2
 
 r = sr.Recognizer()
 
