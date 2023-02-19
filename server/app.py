@@ -6,7 +6,7 @@ from text_analysis import TextAnalysis
 from video_analysis import VideoAnalysis
 from speech_analysis import SpeechAnalysis
 import cv2
-import face_recognition
+# import face_recognition
 from data_processing import speechToText, videoToAudio, getTextSegments, getAudioSegmentFilenames, getFrameFilenames
 
 app = Flask(__name__)
@@ -20,9 +20,10 @@ def hello_world():
 @app.route("/test")
 def test():
     DIR = "./data/"
-    text_segments = getTextSegments(DIR+"mediumVideoTest.mp4")
-    audio_segments = getAudioSegmentFilenames(DIR+"mediumVideoTest.mp4")
-    video_frames = getFrameFilenames(DIR+"mediumVideoTest.mp4")
+    fileName = "sad2.mp4"
+    text_segments = getTextSegments(DIR+fileName)
+    audio_segments = getAudioSegmentFilenames(DIR+fileName)
+    video_frames = getFrameFilenames(DIR+fileName)
 
     text_emotions = []
     for segment in text_segments:
