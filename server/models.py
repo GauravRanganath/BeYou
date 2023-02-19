@@ -15,3 +15,4 @@ class Video(BaseModel):
     text_emotions_segments: list
     audio_emotions_segments: list
     video_emotions_segments: list
+    overall_emotion: list
