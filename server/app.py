@@ -75,6 +75,7 @@ def text_analyzer():
     input_string = request.form.get("input_string")
     text_analyzer = TextAnalysis()
     output_emotion = text_analyzer.return_analysis(input_string)
+    text_segments = getTextSegments(DIR + fileName)
     return jsonify({"output_emotion":output_emotion})
 
 @app.post("/image")
@@ -97,18 +98,21 @@ def audio_analyzer():
     input_audio_path = request.form.get("audio_path")
     audio_analyzer = SpeechAnalysis()
     output_emotion = audio_analyzer.analyze(input_audio_path)
+
     return jsonify({"output_emotion":output_emotion})
 
 @app.route("/boxes")
 def draw_boxes():
-    video = cv2.VideoCapture('data/happy1.mp4')
+    filename = request.form.filename
+    DIR = "./data/"
+    video = cv2.VideoCapture(DIR+filename)
     fps = video.get(cv2.CAP_PROP_FPS)
     print(fps)
     assert(0)
     width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
     frame_number = 0
-    writer = cv2.VideoWriter('basicvideo.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20, (width, height))
+    writer = cv2.VideoWriter(DIR+'basicvideo.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20, (width, height))
     haar_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
     while True:
         try:
@@ -163,8 +167,7 @@ def convert_webm_to_mp4(input_file, output_file):
     print('ffmpeg'+ '-i'+ input_file+ '-c:v'+ 'libx264'+ '-c:a'+ 'aac'+ '-strict'+ 'experimental'+ output_file)
     subprocess.call(['ffmpeg', '-i', input_file, '-c:v', 'libx264', '-c:a', 'aac', '-strict', 'experimental', output_file])
 
-def create_emotion_count_dict(emotion_info):
-    emotions = ["neutral", "angry", "sad", "happy", "surprise", "fear", "disgust"]
+def create_emotion_count_dict(emotion_info, emotions=[]):
     # create count dictionary with each emotion
     emotion_count = {emotion: 0 for emotion in emotions}
     # iterate through each emotion in the text emotions
@@ -216,7 +219,7 @@ def fileUpload():
         highest_emotions = sorted(core_emotions, key=lambda x: x['score'], reverse=True)[0]
         text_emotions.append(highest_emotions['label'])
 
-    text_emotion_count = create_emotion_count_dict(text_emotions)
+    text_emotion_count = create_emotion_count_dict(text_emotions, emotions=["anger","disgust","fear","joy","sadness","neutral","surprise"])
     audio_emotions = []
     for segment in audio_segments:
         emotion_dict = {"neu": "neutral", "ang": "angry", "sad": "sad", "hap": "happy", "sur": "surprised",
@@ -224,7 +227,7 @@ def fileUpload():
         speech_analyzer = SpeechAnalysis()
         audio_emotions.append(emotion_dict[speech_analyzer.analyze(segment)[0]])
 
-    audio_emotion_count = create_emotion_count_dict(audio_emotions)
+    audio_emotion_count = create_emotion_count_dict(audio_emotions, emotions=["neutral", "angry", "sad", "happy"])
 
 
     video_emotions = []
@@ -235,7 +238,7 @@ def fileUpload():
         highest_emotions = sorted(core_emotions, key=lambda x: core_emotions[x], reverse=True)[0]
         video_emotions.append(highest_emotions)
 
-    video_emotion_count = create_emotion_count_dict(video_emotions)
+    video_emotion_count = create_emotion_count_dict(video_emotions, emotions=["anger","disgust","fear","joy","sadness","neutral","surprise"])
 
     curr_output = {
         "name": info[0],
