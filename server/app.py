@@ -205,6 +205,7 @@ def fileUpload():
         "audio_emotions": audio_emotions,
         "video_emotions": video_emotions
     }
+    print(final_output)
     return jsonify(final_output)
 
 CORS(app, expose_headers='Authorization')
