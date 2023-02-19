@@ -2,12 +2,12 @@ from data_processing import speechToText, videoToAudio
 import os
 from flask import Flask, request, session
 from flask_cors import CORS, cross_origin
-from text_analysis import TextAnalysis
-from video_analysis import VideoAnalysis
-from speech_analysis import SpeechAnalysis
-import cv2
-import face_recognition
-from data_processing import speechToText, videoToAudio, getTextSegments, getAudioSegmentFilenames, getFrameFilenames
+# from text_analysis import TextAnalysis
+# from video_analysis import VideoAnalysis
+# from speech_analysis import SpeechAnalysis
+# import cv2
+# import face_recognition
+# from data_processing import speechToText, videoToAudio, getTextSegments, getAudioSegmentFilenames, getFrameFilenames
 
 app = Flask(__name__)
 
