@@ -3,7 +3,7 @@ import Container from "react-bootstrap/esm/Container";
 import Row from "react-bootstrap/esm/Row";
 import Col from "react-bootstrap/esm/Col";
 import { useRef, useState, useEffect } from "react";
-import Video from "../pages/basicvideo.mp4";
+import ReactPlayer from 'react-player';
 import axios, * as others from "axios";
 
 // ['Anger', 'Disgust', 'Fear', 'Joy', 'Neutral', 'Sadness', 'Surprise']
@@ -39,21 +39,21 @@ const Dashboard = () => {
       });
   }, []);
 
-  const videoRef = useRef(null);
   useEffect(() => {
     const video = videoRef.current;
 
     const playVideo = () => {
-      video.play().catch((error) => {
-        console.error("Error starting video playback:", error);
-      });
+      video.play()
+        .catch(error => {
+          console.error('Error starting video playback:', error);
+        });
     };
 
     if (video) {
       if (video.paused && video.readyState >= 3) {
         playVideo();
       } else {
-        video.addEventListener("canplaythrough", playVideo);
+        video.addEventListener('canplaythrough', playVideo);
       }
     }
 
@@ -89,28 +89,7 @@ const Dashboard = () => {
           </Col>
         </Row>
         <Row>
-          <Col sm={7}>
-            <video
-              width={"750px"}
-              height={"400px"}
-              controls
-              autostart
-              autoPlay
-              src={Video}
-              type="video/mp4"
-            />
-          </Col>
-          <Col sm={5}>
-            <p style={{ textAlign: "justify" }}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-              reprehenderit in voluptate velit esse cillum dolore eu fugiat
-              nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-              sunt in culpa qui officia deserunt mollit anim id est laborum.
-            </p>
-          </Col>
+            <video controls autostart autoPlay src={Video} type="video/mp4" />
         </Row>
       </Container>
     </>
