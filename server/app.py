@@ -229,12 +229,116 @@ def getData():
             "video_framerate": x["video_framerate"],
             "text_emotions_segments": x["text_emotions_segments"],
             "audio_emotions_segments": x["audio_emotions_segments"],
-            "video_emotions_segments": x["video_emotions_segments"]
+            "video_emotions_segments": x["video_emotions_segments"],
+            "overall_emotion": x["overall_emotion"]
         }
         res.append(temp)
         
     return jsonify(res)
 
+@app.route('/getAverageEmotions', methods=['GET'])
+def getAverageEmotions():
+    args = request.args
+    name = args.get("name")
+    data = []
+    
+    for x in video_collection.find({ "name": name }, {}):
+        print("data found:", x)
+        temp = {
+            "name": x["name"],
+            "text_emotions": x["text_emotions"],
+            "audio_emotions": x["audio_emotions"],
+            "video_emotions": x["video_emotions"],
+        }
+        data.append(temp)
+        
+    # allEmotions = ['Anger', 'Disgust', 'Fear', 'Joy', 'Neutral', 'Sadness', 'Surprise']
+    
+    res = [0] * 7
+    
+    dataLen = len(data)
+    
+    # ANGER
+    index = 0
+    for x in data:
+        res[index] += x["audio_emotions"]["angry"]
+        res[index] += x["text_emotions"]["anger"]
+        res[index] += x["video_emotions"]["angry"]
+    res[index] = res[index] / (3 * dataLen)
+    
+    # Disgust
+    index = 1
+    for x in data:
+        res[index] += x["text_emotions"]["disgust"]
+        res[index] += x["video_emotions"]["disgust"]
+    res[index] = res[index] / (2 * dataLen)
+    
+    # FEAR
+    index = 2
+    for x in data:
+        res[index] += x["text_emotions"]["fear"]
+        res[index] += x["video_emotions"]["fear"]
+    res[index] = res[index] / (2 * dataLen)
+
+    # JOY
+    index = 3
+    for x in data:
+        res[index] += x["audio_emotions"]["happy"]
+        res[index] += x["text_emotions"]["joy"]
+        res[index] += x["video_emotions"]["happy"]
+    res[index] = res[index] / (3 * dataLen)
+    
+    # NEUTRAL
+    index = 4
+    for x in data:
+        res[index] += x["audio_emotions"]["neutral"]
+        res[index] += x["text_emotions"]["neutral"]
+        res[index] += x["video_emotions"]["neutral"]
+    res[index] = res[index] / (3 * dataLen)
+    
+    # SADNESS
+    index = 5
+    for x in data:
+        res[index] += x["audio_emotions"]["sad"]
+        res[index] += x["text_emotions"]["sadness"]
+        res[index] += x["video_emotions"]["sad"]
+    res[index] = res[index] / (3 * dataLen)
+    
+    # SURPRISE
+    index = 6
+    for x in data:
+        res[index] += x["text_emotions"]["surprise"]
+        res[index] += x["video_emotions"]["surprise"]
+    res[index] = res[index] / (2 * dataLen)
+        
+    return jsonify(res)
+
+@app.route('/getLatestWeek', methods=['GET'])
+def getLatestWeek():
+    args = request.args
+    name = args.get("name")
+    data = []
+    
+    for x in video_collection.find({ "name": name }, {}):
+        print("data found:", x)
+        temp = {
+            "name": x["name"],
+            "epoch_date": int(x["epoch_date"]),
+            "overall_emotion": x["overall_emotion"]
+        }
+        data.append(temp)
+    
+    # print(data)
+    # dict(sorted(data.items(), key=lambda item: item["epoch_date"]))
+    data.sort(key=lambda x: x["epoch_date"], reverse=True)
+    # print(data)
+    
+    res = []
+    for i in range(len(data)):
+        res.append(data[i]["overall_emotion"])
+    
+    return jsonify(res[:7])
+    
 @app.route('/upload', methods=['POST'])
 def fileUpload():
     # save file
@@ -273,7 +377,7 @@ def fileUpload():
     text_emotion_count = create_emotion_count_dict(text_emotions, emotions=["anger","disgust","fear","joy","sadness","neutral","surprise"])
     audio_emotions = []
     for segment in audio_segments:
-        emotion_dict = {"neu": "neutral", "ang": "angry", "sad": "sad", "hap": "happy", "sur": "surprised",
+        emotion_dict = {"neu": "neutral", "ang": "angry", "sad": "sad", "hap": "happy", "sur": "surprise",
                         "fea": "fear", "dis": "disgust"}
         speech_analyzer = SpeechAnalysis()
         audio_emotions.append(emotion_dict[speech_analyzer.analyze(segment)[0]])
@@ -292,6 +396,55 @@ def fileUpload():
     # print("core_emotions", core_emotions)
     video_emotion_count = create_emotion_count_dict(video_emotions, emotions=core_emotions.keys())
 
+    # allEmotions = ['Anger', 'Disgust', 'Fear', 'Joy', 'Neutral', 'Sadness', 'Surprise']
+    overall_emotion = [0] * 7
+    
+    # ANGER
+    index = 0
+    overall_emotion[index] += audio_emotion_count["angry"]
+    overall_emotion[index] += text_emotion_count["anger"]
+    overall_emotion[index] += video_emotion_count["angry"]
+    overall_emotion[index] = overall_emotion[index] / 3
+    
+    # Disgust
+    index = 1
+    overall_emotion[index] += text_emotion_count["disgust"]
+    overall_emotion[index] += video_emotion_count["disgust"]
+    overall_emotion[index] = overall_emotion[index] / 2
+    
+    # FEAR
+    index = 2
+    overall_emotion[index] += text_emotion_count["fear"]
+    overall_emotion[index] += video_emotion_count["fear"]
+    overall_emotion[index] = overall_emotion[index] / 2
+
+    # JOY
+    index = 3
+    overall_emotion[index] += audio_emotion_count["happy"]
+    overall_emotion[index] += text_emotion_count["joy"]
+    overall_emotion[index] += video_emotion_count["happy"]
+    overall_emotion[index] = overall_emotion[index] / 3
+    
+    # NEUTRAL
+    index = 4
+    overall_emotion[index] += audio_emotion_count["neutral"]
+    overall_emotion[index] += text_emotion_count["neutral"]
+    overall_emotion[index] += video_emotion_count["neutral"]
+    overall_emotion[index] = overall_emotion[index] / 3
+    
+    # SADNESS
+    index = 5
+    overall_emotion[index] += audio_emotion_count["sad"]
+    overall_emotion[index] += text_emotion_count["sadness"]
+    overall_emotion[index] += video_emotion_count["sad"]
+    overall_emotion[index] = overall_emotion[index] / 3
+    
+    # SURPRISE
+    index = 6
+    overall_emotion[index] += text_emotion_count["surprise"]
+    overall_emotion[index] += video_emotion_count["surprise"]
+    overall_emotion[index] = overall_emotion[index] / 2
+    
     curr_output = {
         "name": info[0],
         "epoch_date": int(info[1]),
@@ -299,6 +452,7 @@ def fileUpload():
         "text_emotions": text_emotion_count,
         "audio_emotions": audio_emotion_count,
         "video_emotions": video_emotion_count,
+        "overall_emotion": overall_emotion,
         "audio_seconds": audio_secs,
         "video_framerate": math.ceil(vid_fps),
         "text_emotions_segments": text_emotions,
