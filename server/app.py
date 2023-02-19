@@ -14,6 +14,9 @@ from dotenv import dotenv_values
 from pymongo import MongoClient
 from models import Video
 import math, random
+from ffpyplayer.player import MediaPlayer
+from moviepy.editor import *
+import time
 
 app = Flask(__name__)
 
@@ -106,12 +109,14 @@ def draw_boxes():
     filename = "happy2.mp4"#request.form.filename
     DIR = "./data/"
     video = cv2.VideoCapture(DIR+filename)
+    command = f"ffmpeg -y -i {DIR + filename} -ab 160k -ac 2 -ar 44100 -vn {'../client/src/pages/' + 'basicvideo.wav'}"
+    subprocess.call(command, shell=True)
     fps = math.ceil(video.get(cv2.CAP_PROP_FPS))
     text_segments = getTextSegments(DIR + filename)
     width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
     frame_number = 0
-    writer = cv2.VideoWriter(DIR+'basicvideo.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20, (width, height))
+    writer = cv2.VideoWriter('../client/src/pages/'+'basicvideo.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20, (width, height))
     haar_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
     text_emotions = []
     text_probability = []
@@ -125,7 +130,6 @@ def draw_boxes():
     while True:
         try:
             ret, frame = video.read()
-
             frame_number += 1
 
             # Quit when the input video file ends
