@@ -158,15 +158,15 @@ def draw_boxes():
             emotion_probability = str(f"{round(100*random.uniform(prob-0.03, operator(prob+0.03, 1)),2)}%")
             cv2.putText(frame,
                         emotion_name,
-                        (150, 175),
-                        font, 7,
+                        (60, 88),
+                        font, 3,
                         (0, 255, 0),
                         2,
                         cv2.LINE_4)
             cv2.putText(frame,
                         emotion_probability,
-                        (150, 325),
-                        font, 3,
+                        (60, 120),
+                        font, 1,
                         (0, 255, 0),
                         2,
                         cv2.LINE_4)
