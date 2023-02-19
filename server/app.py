@@ -143,8 +143,9 @@ def convert_webm_to_mp4(input_file, output_file):
 @app.route('/upload', methods=['POST'])
 def fileUpload():
     # save file
-    dir = "./data/"
-    target=os.path.join(dir)
+    DIR = "./data/"
+    
+    target=os.path.join(DIR)
     if not os.path.isdir(target):
         os.mkdir(target)
     file = request.files['file'] 
@@ -154,43 +155,12 @@ def fileUpload():
     file.save(destination)
     
     # convert to mp4
-    convert_webm_to_mp4(dir + file.filename, dir + file.filename + ".mp4")
+    fileName = file.filename
     
-    # # start processing data
-    # DIR = "./data/"
-    # fileName = "sad2.mp4"
-    # text_segments = getTextSegments(DIR+fileName)
-    # audio_segments = getAudioSegmentFilenames(DIR+fileName)
-    # video_frames = getFrameFilenames(DIR+fileName)
-
-    # text_emotions = []
-    # for segment in text_segments:
-    #     text_analyzer = TextAnalysis()
-    #     # I need to get the top 3 emotions in the analysis, sorted by score
-    #     core_emotions = text_analyzer.return_analysis(segment)[0]
-    #     highest_emotions = sorted(core_emotions, key=lambda x: x['score'], reverse=True)[:3]
-    #     text_emotions.append(highest_emotions)
-
-    # audio_emotions = []
-    # for segment in audio_segments:
-    #     speech_analyzer = SpeechAnalysis()
-    #     audio_emotions.append(speech_analyzer.analyze(segment))
-
-    # video_emotions = []
-    # for frame in video_frames:
-    #     video_analyzer = VideoAnalysis()
-    #     core_emotions = video_analyzer.analyze(frame)[0]["emotion"]
-    #     highest_emotions = sorted(core_emotions, key=lambda x: core_emotions[x], reverse=True)[:3]
-    #     video_emotions.append(highest_emotions)
-
-    # final_output = {
-    #     "text_emotions": text_emotions,
-    #     "audio_emotions": audio_emotions,
-    #     "video_emotions": video_emotions
-    # }
-
-    DIR = "./data/"
-    fileName = "sad2.mp4"
+    convert_webm_to_mp4(DIR + fileName, DIR + fileName + ".mp4")
+    
+    fileName = fileName + ".mp4"
+    
     text_segments = getTextSegments(DIR + fileName)
     audio_segments = getAudioSegmentFilenames(DIR + fileName)
     video_frames = getFrameFilenames(DIR + fileName)
