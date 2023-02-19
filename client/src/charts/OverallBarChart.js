@@ -32,20 +32,7 @@ export const options = {
   },
 };
 
-const labels = ["January", "February", "March", "April", "May", "June", "July"];
-
-export const data = {
-  labels,
-  datasets: [
-    {
-      label: "Dataset 1",
-      data: [1, 2, 5, 2, 8, 0, 1],
-      backgroundColor: "rgba(255, 99, 132, 0.5)",
-    },
-  ],
-};
-
-export function OverallBarChart() {
+export function OverallBarChart({ setColor, dataArr={dataArr}, showLegend = true }) {
   return (
     <Bar
       options={{
@@ -53,14 +40,31 @@ export function OverallBarChart() {
         plugins: {
           legend: {
             position: "top",
-            display: false,
+            display: showLegend,
           },
           title: {
             display: false,
           },
         },
       }}
-      data={data}
+      data={{
+        labels: [
+          "Anger",
+          "Disgust",
+          "Fear",
+          "Joy",
+          "Neutral",
+          "Sadness",
+          "Surprise",
+        ],
+        datasets: [
+          {
+            label: "Dataset 1",
+            data: dataArr,
+            backgroundColor: setColor,
+          },
+        ],
+      }}
     />
   );
 }

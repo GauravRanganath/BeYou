@@ -19,21 +19,33 @@ ChartJS.register(
   Legend
 );
 
-export const data = {
-  labels: ["Thing 1", "Thing 2", "Thing 3", "Thing 4", "Thing 5", "Thing 6"],
-  datasets: [
-    {
-      label: "# of Votes",
-      data: [2, 9, 3, 5, 2, 3],
-      backgroundColor: "rgba(255, 99, 132, 0.2)",
-      borderColor: "rgba(255, 99, 132, 1)",
-      borderWidth: 1,
-    },
-  ],
-};
-
-export function OverallRadarChart() {
+export function OverallRadarChart({setColor, dataArr, showLegend=true}) {
   return (
-    <Radar data={data} />
+    <Radar
+      options={{
+        responsive: true,
+        plugins: {
+          legend: {
+            position: "top",
+            display: showLegend,
+          },
+          title: {
+            display: false,
+          },
+        },
+      }}
+      data={{
+        labels: ['Anger', 'Disgust', 'Fear', 'Joy', 'Neutral', 'Sadness', 'Surprise'],
+        datasets: [
+          {
+            label: "# of Votes",
+            data: dataArr,
+            backgroundColor: setColor,
+            borderColor: setColor,
+            borderWidth: 1,
+          },
+        ],
+      }}
+    />
   );
 }

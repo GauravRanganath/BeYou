@@ -22,19 +22,6 @@ ChartJS.register(
   Legend
 );
 
-export const options = {
-  responsive: true,
-  plugins: {
-    legend: {
-      position: "top",
-    },
-    title: {
-      display: true,
-      text: "Chart.js Line Chart",
-    },
-  },
-};
-
 const labels = ["1", "2", "3", "4", "5", "6", "7"];
 
 export const data = {
@@ -43,48 +30,65 @@ export const data = {
     {
       label: "Anger",
       data: [1, 4, 5, 6, 7, 5, 5],
-      borderColor: 'rgba(255, 99, 132, 1)',
-      backgroundColor: 'rgba(255, 99, 132, 0.2)',
+      borderColor: "rgba(255, 99, 132, 1)",
+      backgroundColor: "rgba(255, 99, 132, 0.2)",
     },
     {
       label: "Disgust",
       data: [5, 6, 5, 6, 1, 5, 1],
-      borderColor: 'rgba(54, 162, 235, 1)',
-      backgroundColor: 'rgba(54, 162, 235, 0.2)',
+      borderColor: "rgba(54, 162, 235, 1)",
+      backgroundColor: "rgba(54, 162, 235, 0.2)",
     },
     {
       label: "Fear",
       data: [5, 6, 5, 6, 1, 5, 1],
-      borderColor: 'rgba(255, 206, 86, 1)',
-      backgroundColor: 'rgba(255, 206, 86, 0.2)',
+      borderColor: "rgba(255, 206, 86, 1)",
+      backgroundColor: "rgba(255, 206, 86, 0.2)",
     },
     {
       label: "Joy",
       data: [5, 6, 5, 6, 1, 5, 1],
-      borderColor: 'rgba(75, 192, 192, 1)',
-      backgroundColor: 'rgba(75, 192, 192, 0.2)',
+      borderColor: "rgba(75, 192, 192, 1)",
+      backgroundColor: "rgba(75, 192, 192, 0.2)",
     },
     {
       label: "Neutral",
       data: [5, 6, 5, 6, 1, 5, 1],
-      borderColor: 'rgba(128,128,128, 1)',
-      backgroundColor: 'rgba(128,128,128, 0.2)',
+      borderColor: "rgba(128,128,128, 1)",
+      backgroundColor: "rgba(128,128,128, 0.2)",
     },
     {
       label: "Sadness",
       data: [5, 6, 5, 6, 1, 5, 1],
-      borderColor: 'rgba(255, 159, 64, 1)',
-      backgroundColor: 'rgba(255, 159, 64, 0.2)',
+      borderColor: "rgba(255, 159, 64, 1)",
+      backgroundColor: "rgba(255, 159, 64, 0.2)",
     },
     {
       label: "Surprise",
       data: [5, 6, 5, 6, 1, 5, 1],
-      borderColor: 'rgba(153, 102, 255, 1)',
-      backgroundColor: 'rgba(153, 102, 255, 0.2)',
+      borderColor: "rgba(153, 102, 255, 1)",
+      backgroundColor: "rgba(153, 102, 255, 0.2)",
     },
   ],
 };
 
-export function OverallLineChart() {
-  return <Line options={options} data={data} />;
+export function OverallLineChart({dataXDays, showLegend=true}) {
+  console.log(dataXDays);
+  return (
+    <Line
+      options={{
+        responsive: true,
+        plugins: {
+          legend: {
+            position: "top",
+            display: showLegend
+          },
+          title: {
+            display: false,
+          },
+        },
+      }}
+      data={data}
+    />
+  );
 }

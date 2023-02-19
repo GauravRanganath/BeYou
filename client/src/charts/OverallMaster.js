@@ -10,15 +10,17 @@ import Container from "react-bootstrap/esm/Container";
 import Row from "react-bootstrap/esm/Row";
 import Col from "react-bootstrap/esm/Col";
 
-function OverallMaster() {
+function OverallMaster({ dataCumulative, dataAudio, dataVideo, dataTranscript, dataXDays }) {
   const [chartType, setChartType] = useState("percent");
 
+  console.log(dataCumulative);
   return (
     <>
       <Container>
         <Row>
           <Col sm={6}>
-            {chartType === "line" && <OverallLineChart />}
+            <h2>Overall Analysis</h2>
+            {chartType === "line" && <OverallLineChart dataXDays={dataXDays} />}
             {chartType === "percent" && (
               <div
                 style={{
@@ -29,7 +31,7 @@ function OverallMaster() {
                   justifyContent: "center",
                 }}
               >
-                <OverallDoughnutChart />
+                <OverallDoughnutChart dataArr={dataCumulative} />
               </div>
             )}
             {chartType === "radar" && (
@@ -42,15 +44,20 @@ function OverallMaster() {
                   justifyContent: "center",
                 }}
               >
-                <OverallRadarChart />
+                <OverallRadarChart dataArr={dataCumulative} />
               </div>
             )}
-            {chartType === "bar" && <OverallBarChart />}
+            {chartType === "bar" && (
+              <OverallBarChart dataArr={dataCumulative} />
+            )}
           </Col>
           <Col sm={6}>
             <Row>
-              <Col sm={3}>
-                {chartType === "line" && <OverallLineChart />}
+              <Col sm={6}>
+                <h4>Audio Analysis</h4>
+                {chartType === "line" && (
+                  <OverallLineChart showLegend={false} />
+                )}
                 {chartType === "percent" && (
                   <div
                     style={{
@@ -61,7 +68,10 @@ function OverallMaster() {
                       justifyContent: "center",
                     }}
                   >
-                    <OverallDoughnutChart />
+                    <OverallDoughnutChart
+                      dataArr={dataAudio}
+                      showLegend={false}
+                    />
                   </div>
                 )}
                 {chartType === "radar" && (
@@ -74,13 +84,16 @@ function OverallMaster() {
                       justifyContent: "center",
                     }}
                   >
-                    <OverallRadarChart />
+                    <OverallRadarChart setColor={"rgba(54, 162, 235, 0.2)"} dataArr={dataAudio} showLegend={false} />
                   </div>
                 )}
-                {chartType === "bar" && <OverallBarChart />}
+                {chartType === "bar" && <OverallBarChart setColor={"rgba(54, 162, 235, 0.2)"} dataArr={dataAudio} showLegend={false} />}
               </Col>
-              <Col sm={3}>
-                {chartType === "line" && <OverallLineChart />}
+              <Col sm={6}>
+                <h4>Video Analysis</h4>
+                {chartType === "line" && (
+                  <OverallLineChart showLegend={false} />
+                )}
                 {chartType === "percent" && (
                   <div
                     style={{
@@ -91,7 +104,7 @@ function OverallMaster() {
                       justifyContent: "center",
                     }}
                   >
-                    <OverallDoughnutChart />
+                    <OverallDoughnutChart dataArr={dataVideo} showLegend={false} />
                   </div>
                 )}
                 {chartType === "radar" && (
@@ -104,15 +117,18 @@ function OverallMaster() {
                       justifyContent: "center",
                     }}
                   >
-                    <OverallRadarChart />
+                    <OverallRadarChart setColor={"rgba(255, 206, 86, 0.2)"} dataArr={dataVideo} showLegend={false} />
                   </div>
                 )}
-                {chartType === "bar" && <OverallBarChart />}
+                {chartType === "bar" && <OverallBarChart setColor={"rgba(255, 206, 86, 0.2)"} dataArr={dataVideo} showLegend={false} />}
               </Col>
             </Row>
             <Row>
-              <Col sm={3}>
-                {chartType === "line" && <OverallLineChart />}
+              <Col sm={6}>
+                <h4>Transcript Analysis</h4>
+                {chartType === "line" && (
+                  <OverallLineChart showLegend={false} />
+                )}
                 {chartType === "percent" && (
                   <div
                     style={{
@@ -123,7 +139,7 @@ function OverallMaster() {
                       justifyContent: "center",
                     }}
                   >
-                    <OverallDoughnutChart />
+                    <OverallDoughnutChart dataArr={dataTranscript} showLegend={false} />
                   </div>
                 )}
                 {chartType === "radar" && (
@@ -136,15 +152,16 @@ function OverallMaster() {
                       justifyContent: "center",
                     }}
                   >
-                    <OverallRadarChart />
+                    <OverallRadarChart setColor={"rgba(75, 192, 192, 0.2)"} dataArr={dataTranscript} showLegend={false} />
                   </div>
                 )}
-                {chartType === "bar" && <OverallBarChart />}
+                {chartType === "bar" && <OverallBarChart setColor={"rgba(75, 192, 192, 0.2)"} dataArr={dataTranscript} showLegend={false} />}
               </Col>
             </Row>
           </Col>
         </Row>
-
+        <br></br>
+        <br></br>
         <ButtonGroup aria-label="Basic example">
           <Button variant="secondary" onClick={() => setChartType("percent")}>
             Percent
