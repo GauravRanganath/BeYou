@@ -3,6 +3,8 @@ from text_analysis import TextAnalysis
 from video_analysis import VideoAnalysis
 from speech_analysis import SpeechAnalysis
 from data_processing import speechToText, videoToAudio
+import cv2
+import face_recognition
 
 app = Flask(__name__)
 
@@ -54,3 +56,9 @@ def audio_analyzer():
     audio_analyzer = SpeechAnalysis()
     output_emotion = audio_analyzer.analyze(input_audio_path)
     return jsonify({"output_emotion":output_emotion})
+
+@app.post("/boxes")
+def draw_boxes():
+    input_video_path = request.form.get("video_path")
+    cap = cv2.VideoCapture("enterfilepath.mp4")
+
