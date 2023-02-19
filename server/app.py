@@ -1,10 +1,13 @@
-from flask import Flask, jsonify, request
+from data_processing import speechToText, videoToAudio
+import os
+from flask import Flask, request, session
+from flask_cors import CORS, cross_origin
 from text_analysis import TextAnalysis
 from video_analysis import VideoAnalysis
 from speech_analysis import SpeechAnalysis
-from data_processing import speechToText, videoToAudio
 import cv2
 import face_recognition
+from data_processing import speechToText, videoToAudio, getTextSegments, getAudioSegmentFilenames, getFrameFilenames
 
 app = Flask(__name__)
 
@@ -16,13 +19,11 @@ def hello_world():
 
 @app.route("/test")
 def test():
-    videoToAudio(DIR+"videoTest.mp4")
-    text = speechToText(DIR+"videoTest.mp4_audio.wav")
-    return text
-
-@app.route("/test2")
-def test2():
-    return "<p>Hello, test2!</p>"
+    DIR = "./data/"
+    text_segments = getTextSegments(DIR+"mediumVideoTest.mp4")
+    audio_segments = getAudioSegmentFilenames(DIR+"mediumVideoTest.mp4")
+    video_frames = getFrameFilenames(DIR+"mediumVideoTest.mp4")
+    return text_segments
 
 @app.post("/text")
 def text_analyzer():
@@ -62,3 +63,27 @@ def draw_boxes():
     input_video_path = request.form.get("video_path")
     cap = cv2.VideoCapture("enterfilepath.mp4")
 
+@app.route('/upload', methods=['POST'])
+def fileUpload():
+    target=os.path.join("./data",'test_docs')
+    if not os.path.isdir(target):
+        os.mkdir(target)
+    file = request.files['file'] 
+    filename = file.filename
+    destination="/".join([target, filename])
+    file.save(destination)
+    
+    # start processing data
+    audio_segments = []
+    text_segments = []
+    video_frames = []
+    
+    # DIR = "./data/"
+    # text_segments = getTextSegments(DIR+"mediumVideoTest.mp4")
+    # audio_segments = getAudioSegmentFilenames(DIR+"mediumVideoTest.mp4")
+    # video_frames = getFrameFilenames(DIR+"mediumVideoTest.mp4")
+    
+    response="Whatever you wish too return"
+    return response
+
+CORS(app, expose_headers='Authorization')
