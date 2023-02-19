@@ -16,6 +16,7 @@ const Dashboard = () => {
   const [allData, setAllData] = useState([]);
   const [overallTranscript, setOverallTranscript] = useState([]);
   const [lastXDays, setLastXDays] = useState([]);
+  const [fileName, setFileName] = useState("");
 
   useEffect(() => {
     axios
@@ -88,11 +89,18 @@ const Dashboard = () => {
           </Col>
         </Row>
         <Row>
-            <Select options={allData} />
+            <Select options={allData} onChange={(value) => {
+                axios
+                .get("http://localhost:5000/boxes?filename="+value["video_name"])
+                .then(function (response) {
+                  console.log("UPLOAD: complete", response.data);
+                  setFileName("videos/"+value["video_name"]);
+                })
+              }}/>
             <div className='player-wrapper'>
               <ReactPlayer
               // className='react-player fixed-bottom'
-              url='videos/demo_video.mp4'
+              url= {fileName}
               // width='20%'
               // height='20%'
               controls = {true}
