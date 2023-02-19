@@ -1,5 +1,6 @@
 from data_processing import speechToText, videoToAudio
 import os
+import subprocess
 from flask import Flask, jsonify, request, session
 from flask_cors import CORS, cross_origin
 from text_analysis import TextAnalysis
@@ -129,10 +130,21 @@ def draw_boxes():
     cv2.destroyAllWindows()
 
 
+def convert_webm_to_mp4(input_file, output_file):
+    """
+    Convert a WebM file to MP4 using FFmpeg.
+    :param input_file: The path to the input WebM file.
+    :param output_file: The path to the output MP4 file.
+    """
+    print('ffmpeg'+ '-i'+ input_file+ '-c:v'+ 'libx264'+ '-c:a'+ 'aac'+ '-strict'+ 'experimental'+ output_file)
+    subprocess.call(['ffmpeg', '-i', input_file, '-c:v', 'libx264', '-c:a', 'aac', '-strict', 'experimental', output_file])
+
 
 @app.route('/upload', methods=['POST'])
 def fileUpload():
-    target=os.path.join("./data")
+    # save file
+    dir = "./data/"
+    target=os.path.join(dir)
     if not os.path.isdir(target):
         os.mkdir(target)
     file = request.files['file'] 
@@ -140,6 +152,9 @@ def fileUpload():
     destination="/".join([target, filename])
     print(destination)
     file.save(destination)
+    
+    # convert to mp4
+    convert_webm_to_mp4(dir + file.filename, dir + file.filename + ".mp4")
     
     # # start processing data
     # DIR = "./data/"
