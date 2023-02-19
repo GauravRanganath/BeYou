@@ -90,19 +90,10 @@ const Dashboard = () => {
             <h1>Daily Analysis</h1>
           </Col>
         </Row>
+        <br></br>
         <Row>
-          <Col md={2}></Col>
-          <Col md={8}>
-            <div className="player-wrapper">
-              <ReactPlayer
-                // className='react-player fixed-bottom'
-                url={fileName}
-                // width='20%'
-                // height='20%'
-                controls={true}
-              />
-            </div>
-
+          <Col md={3}></Col>
+          <Col md={6}>
             <Select
               options={allData}
               onChange={(value) => {
@@ -117,8 +108,18 @@ const Dashboard = () => {
                   });
               }}
             />
+            <div></div>
+            <div style={{margin: "auto"}} className="player-wrapper">
+              <ReactPlayer
+                // className='react-player fixed-bottom'
+                url={fileName}
+                // width='20%'
+                // height='20%'
+                controls={true}
+              />
+            </div>
           </Col>
-          <Col md={2}></Col>
+          <Col md={3}></Col>
         </Row>
       </Container>
     </>
