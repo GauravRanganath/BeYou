@@ -3,6 +3,7 @@ import speech_recognition as sr
 import moviepy.editor as mp
 from pydub import AudioSegment
 import cv2
+import math
 
 r = sr.Recognizer()
 
@@ -17,7 +18,7 @@ def extractFrames(filename):
     fps = vidcap.get(cv2.CAP_PROP_FPS)
     print('frames per second =', fps)
 
-    limit = 60
+    limit = math.ceil(fps)
     
     res = []
 
@@ -30,7 +31,7 @@ def extractFrames(filename):
         success, image = vidcap.read()
         count += 1
         
-    return res
+    return res, fps
 
 
 def speechToText(filename):

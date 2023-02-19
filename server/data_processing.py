@@ -52,7 +52,7 @@ def getAudioSegmentFilenames(filename):
     res = []
     for i in range(0, total_secs, segmentSize):
         res.append(filename+"_segment_"+str(math.ceil(i/segmentSize))+".wav")
-    return res
+    return res, total_secs
 
 
 def getFrameFilenames(filename):

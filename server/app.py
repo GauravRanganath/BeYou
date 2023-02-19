@@ -9,10 +9,20 @@ from speech_analysis import SpeechAnalysis
 import cv2
 # import face_recognition
 from data_processing import speechToText, videoToAudio, getTextSegments, getAudioSegmentFilenames, getFrameFilenames
+from dotenv import dotenv_values
+from pymongo import MongoClient
+from models import Video
+import math
 
 app = Flask(__name__)
 
 DIR = "./data/"
+config = dotenv_values("env")
+
+app.mongodb_client = MongoClient(config["ATLAS_URI"])
+app.database = app.mongodb_client[config["DB_NAME"]]
+video_collection = app.database["video_collection"]
+print("Connected to the MongoDB database!")
 
 @app.route("/")
 def hello_world():
@@ -23,8 +33,8 @@ def test():
     DIR = "./data/"
     fileName = "rama_18-february-2023.webm"
     text_segments = getTextSegments(DIR+fileName)
-    audio_segments = getAudioSegmentFilenames(DIR+fileName)
-    video_frames = getFrameFilenames(DIR+fileName)
+    audio_segments, audio_secs = getAudioSegmentFilenames(DIR+fileName)
+    video_frames, vid_fps = getFrameFilenames(DIR+fileName)
 
     text_emotions = []
     for segment in text_segments:
@@ -91,7 +101,9 @@ def audio_analyzer():
 @app.route("/boxes")
 def draw_boxes():
     video = cv2.VideoCapture('data/happy1.mp4')
-
+    fps = video.get(cv2.CAP_PROP_FPS)
+    print(fps)
+    assert(0)
     width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
     frame_number = 0
@@ -106,6 +118,17 @@ def draw_boxes():
             # Quit when the input video file ends
             if not ret:
                 break
+            font = cv2.FONT_HERSHEY_SIMPLEX
+
+            # Use putText() method for
+            # inserting text on video
+            cv2.putText(frame,
+                        'TEXT ON VIDEO',
+                        (50, 50),
+                        font, 1,
+                        (0, 255, 255),
+                        2,
+                        cv2.LINE_4)
             if frame_number% 10 == 1:
                 gray_img = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -117,7 +140,7 @@ def draw_boxes():
 
             # Iterating through rectangles of detected faces
             for (x, y, w, h) in faces_rect:
-                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 4)
             # Write the resulting image to the output video file
             print("Writing frame {} / {}".format(frame_number, width))
             writer.write(frame)
@@ -162,8 +185,8 @@ def fileUpload():
     fileName = fileName + ".mp4"
     
     text_segments = getTextSegments(DIR + fileName)
-    audio_segments = getAudioSegmentFilenames(DIR + fileName)
-    video_frames = getFrameFilenames(DIR + fileName)
+    audio_segments, audio_secs = getAudioSegmentFilenames(DIR + fileName)
+    video_frames, vid_fps = getFrameFilenames(DIR + fileName)
 
     text_emotions = []
     for segment in text_segments:
@@ -171,25 +194,46 @@ def fileUpload():
         # I need to get the top 3 emotions in the analysis, sorted by score
         core_emotions = text_analyzer.return_analysis(segment)[0]
         highest_emotions = sorted(core_emotions, key=lambda x: x['score'], reverse=True)[0]
-        text_emotions.append(highest_emotions)
+        text_emotions.append(highest_emotions['label'])
 
     audio_emotions = []
     for segment in audio_segments:
+        emotion_dict = {"neu": "neutral", "ang": "angry", "sad": "sad", "hap": "happy", "sur": "surprised",
+                        "fea": "fear", "dis": "disgust"}
         speech_analyzer = SpeechAnalysis()
-        audio_emotions.append(speech_analyzer.analyze(segment)[0])
+        audio_emotions.append(emotion_dict[speech_analyzer.analyze(segment)[0]])
 
     video_emotions = []
     for frame in video_frames:
+
         video_analyzer = VideoAnalysis()
         core_emotions = video_analyzer.analyze(frame)[0]["emotion"]
         highest_emotions = sorted(core_emotions, key=lambda x: core_emotions[x], reverse=True)[0]
         video_emotions.append(highest_emotions)
 
-    final_output = {
+    curr_output = {
+        "video_name": fileName,
         "text_emotions": text_emotions,
         "audio_emotions": audio_emotions,
-        "video_emotions": video_emotions
+        "video_emotions": video_emotions,
+        "audio_seconds": audio_secs,
+        "video_framerate": math.ceil(vid_fps),
     }
+    final_output = curr_output.copy()
+    video_collection.delete_many({})
+    print(video_collection.deleted_count, " documents deleted.")
+    analysis_output = Video(**final_output)
+    video_collection.insert_one(analysis_output.__dict__)
+    existing_row = video_collection.find_one({"video_name": final_output["video_name"]})
+
+    # If a document with the same filename exists, update its content
+    if existing_row:
+        video_collection.update_one({"video_name": existing_row["video_name"]}, {"$set": existing_row})
+    else:
+        # Otherwise, insert a new document with the given row
+        video_collection.insert_one(final_output)
+    for video in video_collection.find():
+        print(video)
     print(final_output)
     return jsonify(final_output)
 
