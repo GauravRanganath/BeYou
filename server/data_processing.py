@@ -3,13 +3,17 @@ from data_processing_helper import videoToAudio, splitAudio, speechToText, extra
 import os
 from pydub import AudioSegment
 import glob
+import speech_recognition as sr
 
 
 def buildTextSegments(filename, total_secs, sec_per_split):
     res = []
     for i in range(0, total_secs, sec_per_split):
-        temp = speechToText(filename+"_segment_"+str(math.ceil(i/sec_per_split))+".wav")
-        res.append(temp)
+        try:
+            temp = speechToText(filename+"_segment_"+str(math.ceil(i/sec_per_split))+".wav")
+            res.append(temp)
+        except sr.UnknownValueError:
+            res.append("unknown")
     return res
 
 

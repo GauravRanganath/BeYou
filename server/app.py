@@ -162,6 +162,17 @@ def convert_webm_to_mp4(input_file, output_file):
     print('ffmpeg'+ '-i'+ input_file+ '-c:v'+ 'libx264'+ '-c:a'+ 'aac'+ '-strict'+ 'experimental'+ output_file)
     subprocess.call(['ffmpeg', '-i', input_file, '-c:v', 'libx264', '-c:a', 'aac', '-strict', 'experimental', output_file])
 
+def create_emotion_count_dict(emotion_info):
+    emotions = ["neutral", "angry", "sad", "happy", "surprised", "fear", "disgust"]
+    # create count dictionary with each emotion
+    emotion_count = {emotion: 0 for emotion in emotions}
+    # iterate through each emotion in the text emotions
+    for emotion in emotion_info:
+        # increment the count for that emotion
+        emotion_count[emotion] += 1
+    # divide each emotion count by the total number of emotions
+    emotion_count = {emotion: 100*emotion_count[emotion] / len(emotion_info) for emotion in emotions}
+    return emotion_count
 
 @app.route('/upload', methods=['POST'])
 def fileUpload():
@@ -196,12 +207,16 @@ def fileUpload():
         highest_emotions = sorted(core_emotions, key=lambda x: x['score'], reverse=True)[0]
         text_emotions.append(highest_emotions['label'])
 
+    text_emotion_count = create_emotion_count_dict(text_emotions)
     audio_emotions = []
     for segment in audio_segments:
         emotion_dict = {"neu": "neutral", "ang": "angry", "sad": "sad", "hap": "happy", "sur": "surprised",
                         "fea": "fear", "dis": "disgust"}
         speech_analyzer = SpeechAnalysis()
         audio_emotions.append(emotion_dict[speech_analyzer.analyze(segment)[0]])
+
+    audio_emotion_count = create_emotion_count_dict(audio_emotions)
+
 
     video_emotions = []
     for frame in video_frames:
@@ -211,17 +226,17 @@ def fileUpload():
         highest_emotions = sorted(core_emotions, key=lambda x: core_emotions[x], reverse=True)[0]
         video_emotions.append(highest_emotions)
 
+    video_emotion_count = create_emotion_count_dict(video_emotions)
+
     curr_output = {
         "video_name": fileName,
-        "text_emotions": text_emotions,
-        "audio_emotions": audio_emotions,
-        "video_emotions": video_emotions,
+        "text_emotions": text_emotion_count,
+        "audio_emotions": audio_emotion_count,
+        "video_emotions": video_emotion_count,
         "audio_seconds": audio_secs,
         "video_framerate": math.ceil(vid_fps),
     }
     final_output = curr_output.copy()
-    video_collection.delete_many({})
-    print(video_collection.deleted_count, " documents deleted.")
     analysis_output = Video(**final_output)
     video_collection.insert_one(analysis_output.__dict__)
     existing_row = video_collection.find_one({"video_name": final_output["video_name"]})
@@ -232,9 +247,6 @@ def fileUpload():
     else:
         # Otherwise, insert a new document with the given row
         video_collection.insert_one(final_output)
-    for video in video_collection.find():
-        print(video)
-    print(final_output)
     return jsonify(final_output)
 
 CORS(app, expose_headers='Authorization')
